@@ -168,6 +168,11 @@ select {
   padding-right: 40px;
 }
 
+select option {
+  background: #ffffff;
+  color: #172033;
+}
+
 .app-shell {
   min-height: 100vh;
   display: flex;
@@ -263,7 +268,7 @@ select {
 .search-wrapper select {
   height: 40px;
   border: none;
-  background: transparent;
+  background-color: transparent;
   min-width: 160px;
   font-weight: 500;
 }
