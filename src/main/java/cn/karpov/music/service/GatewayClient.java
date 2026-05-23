@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 @Service
 public class GatewayClient {
@@ -44,7 +45,9 @@ public class GatewayClient {
                         attempts.add(new GatewayAttempt(url, true, "ok"));
                         return new GatewayPayload(json, url, attempts);
                     }
-                    attempts.add(new GatewayAttempt(url, false, "empty or redirect response"));
+                    attempts.add(new GatewayAttempt(url, false, describeEmptyResult(json)));
+                } catch (RestClientResponseException ex) {
+                    attempts.add(new GatewayAttempt(url, false, "HTTP " + ex.getStatusCode().value() + ": " + describeResponseBody(ex.getResponseBodyAsString())));
                 } catch (Exception ex) {
                     attempts.add(new GatewayAttempt(url, false, ex.getClass().getSimpleName() + ": " + ex.getMessage()));
                 }
@@ -131,6 +134,45 @@ public class GatewayClient {
             return isRedirectOrHtml(json.asText());
         }
         return false;
+    }
+
+    private String describeEmptyResult(JsonNode json) {
+        if (json == null || json.isNull()) {
+            return "empty response";
+        }
+        if (json.isArray() && json.isEmpty()) {
+            return "empty array response";
+        }
+        if (json.isObject()) {
+            JsonNode value = json.get("value");
+            if (value != null && value.isTextual() && isRedirectOrHtml(value.asText())) {
+                return "gateway returned HTML or login page instead of music API JSON";
+            }
+            JsonNode code = first(json, "code", "status");
+            JsonNode message = first(json, "message", "msg", "error");
+            if (code != null && code.asInt(200) >= 400 && message != null) {
+                return "gateway error " + code.asText() + ": " + message.asText();
+            }
+            JsonNode data = json.get("data");
+            if (data != null && (data.isNull() || (data.isArray() && data.isEmpty()))) {
+                return "empty data field";
+            }
+        }
+        if (json.isTextual() && isRedirectOrHtml(json.asText())) {
+            return "gateway returned HTML or login page instead of music API JSON";
+        }
+        return "empty or unsupported gateway response";
+    }
+
+    private String describeResponseBody(String body) {
+        if (isRedirectOrHtml(body)) {
+            return "gateway returned HTML or login page instead of music API JSON";
+        }
+        if (body == null || body.isBlank()) {
+            return "empty response body";
+        }
+        String trimmed = body.trim().replaceAll("\\s+", " ");
+        return trimmed.length() > 240 ? trimmed.substring(0, 240) + "..." : trimmed;
     }
 
     private boolean isRedirectOrHtml(String value) {

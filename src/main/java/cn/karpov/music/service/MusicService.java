@@ -20,12 +20,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class MusicService {
     private static final List<Platform> PLATFORMS = List.of(
-            new Platform("netease", "网易云音乐"),
-            new Platform("qq", "QQ音乐"),
-            new Platform("tencent", "QQ音乐"),
-            new Platform("kugou", "酷狗音乐"),
-            new Platform("kuwo", "酷我音乐"),
-            new Platform("migu", "咪咕音乐")
+            new Platform("netease", "\u7f51\u6613\u4e91\u97f3\u4e50"),
+            new Platform("qq", "QQ\u97f3\u4e50"),
+            new Platform("tencent", "QQ\u97f3\u4e50"),
+            new Platform("kugou", "\u9177\u72d7\u97f3\u4e50"),
+            new Platform("kuwo", "\u9177\u6211\u97f3\u4e50"),
+            new Platform("migu", "\u54aa\u5495\u97f3\u4e50")
     );
 
     private static final Map<String, String> PLATFORM_ALIASES = Map.ofEntries(
@@ -33,23 +33,23 @@ public class MusicService {
             Map.entry("163", "netease"),
             Map.entry("wy", "netease"),
             Map.entry("wyyy", "netease"),
-            Map.entry("网易云", "netease"),
-            Map.entry("网易云音乐", "netease"),
+            Map.entry("\u7f51\u6613\u4e91", "netease"),
+            Map.entry("\u7f51\u6613\u4e91\u97f3\u4e50", "netease"),
             Map.entry("qq", "qq"),
             Map.entry("qqmusic", "qq"),
-            Map.entry("qq音乐", "qq"),
+            Map.entry("qq\u97f3\u4e50", "qq"),
             Map.entry("tencent", "tencent"),
-            Map.entry("腾讯", "tencent"),
+            Map.entry("\u817e\u8baf", "tencent"),
             Map.entry("tencentmusic", "tencent"),
             Map.entry("kugou", "kugou"),
-            Map.entry("酷狗", "kugou"),
-            Map.entry("酷狗音乐", "kugou"),
+            Map.entry("\u9177\u72d7", "kugou"),
+            Map.entry("\u9177\u72d7\u97f3\u4e50", "kugou"),
             Map.entry("kuwo", "kuwo"),
-            Map.entry("酷我", "kuwo"),
-            Map.entry("酷我音乐", "kuwo"),
+            Map.entry("\u9177\u6211", "kuwo"),
+            Map.entry("\u9177\u6211\u97f3\u4e50", "kuwo"),
             Map.entry("migu", "migu"),
-            Map.entry("咪咕", "migu"),
-            Map.entry("咪咕音乐", "migu")
+            Map.entry("\u54aa\u5495", "migu"),
+            Map.entry("\u54aa\u5495\u97f3\u4e50", "migu")
     );
 
     private final GatewayClient gatewayClient;
@@ -195,7 +195,7 @@ public class MusicService {
         } else {
             addIfPresent(bits, firstText(body, "desc", "description", "intro", "content"));
         }
-        return String.join(" · ", bits);
+        return String.join(" / ", bits);
     }
 
     private Map<String, String> collectFields(JsonNode body, String type) {

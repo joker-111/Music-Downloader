@@ -120,7 +120,7 @@ public class MusicController {
     @ExceptionHandler(GatewayException.class)
     public ResponseEntity<ApiResponse<GatewayError>> gatewayError(GatewayException ex) {
         GatewayError error = new GatewayError(ex.getOperation(), ex.getParams(), ex.getAttempts());
-        return ResponseEntity.badRequest().body(ApiResponse.fail(error, "Gateway endpoint probing failed. Check music.gateway.candidates in application.yml."));
+        return ResponseEntity.badRequest().body(ApiResponse.fail(error, "Gateway endpoint probing failed: current music.gateway.base-url or candidates did not return music API JSON. Configure a working gateway in application.yml."));
     }
 
     @ExceptionHandler(Exception.class)
