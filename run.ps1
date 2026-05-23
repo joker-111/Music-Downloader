@@ -17,4 +17,9 @@ if ($env:MAVEN_HOME) {
     $env:Path = "$env:MAVEN_HOME\bin;$env:Path"
 }
 
-mvn spring-boot:run
+mvn -DskipTests clean package
+if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+}
+
+java -jar (Join-Path $PSScriptRoot "target\music-downloader-0.0.1-SNAPSHOT.jar")
