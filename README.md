@@ -40,6 +40,14 @@
 
 注意：`https://gateway.karpov.cn` 当前直接访问返回的是 Karpov Console HTML 页面，不是公开音乐 API JSON。要正常搜索和下载，需要把 `src/main/resources/application.yml` 中的 `music.gateway.base-url` 改成已部署并开放音乐 API 的 Karpov Gateway 后端地址，或提供可用的 API Key/登录信息后再接入认证头。
 
+如果网关需要 API Key，请在本机环境变量中配置，不要写入 Git：
+
+```powershell
+setx MUSIC_GATEWAY_API_KEY "你的 API Key"
+```
+
+重新打开终端后再运行 `.\run.cmd`。
+
 如果你的网关实际路径不同，只需要调整候选项，不必改 Java 代码。
 
 ## 本地 API

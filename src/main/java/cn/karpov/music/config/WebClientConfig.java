@@ -9,9 +9,13 @@ import org.springframework.web.client.RestClient;
 public class WebClientConfig {
     @Bean
     RestClient restClient(GatewayProperties properties) {
-        return RestClient.builder()
-                .defaultHeader("User-Agent", properties.getUserAgent())
-                .build();
+        RestClient.Builder builder = RestClient.builder()
+                .defaultHeader("User-Agent", properties.getUserAgent());
+        if (properties.getApiKey() != null && !properties.getApiKey().isBlank()) {
+            builder.defaultHeader("X-API-Key", properties.getApiKey().trim());
+            builder.defaultHeader("Authorization", "Bearer " + properties.getApiKey().trim());
+        }
+        return builder.build();
     }
 
     @Bean

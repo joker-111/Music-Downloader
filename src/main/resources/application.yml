@@ -10,6 +10,7 @@ music:
     base-url: https://gateway.karpov.cn
     timeout: 15s
     user-agent: Mozilla/5.0 MusicDownloader/1.0
+    api-key: ${MUSIC_GATEWAY_API_KEY:}
     candidates:
       search:
         - "/v1/{platform}/search/songs?q={keyword}&page={page}&page_size={limit}"
