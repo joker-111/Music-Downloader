@@ -18,10 +18,10 @@ if ($env:MAVEN_HOME) {
 }
 
 $AppJar = Join-Path $PSScriptRoot "target\music-downloader-0.0.1-SNAPSHOT.jar"
-$AppJarPattern = ("*" + $AppJar.Replace("\", "\\") + "*")
+$AppJarName = Split-Path $AppJar -Leaf
 
 Get-CimInstance Win32_Process -Filter "name = 'java.exe'" |
-    Where-Object { $_.CommandLine -like $AppJarPattern } |
+    Where-Object { $_.CommandLine -and $_.CommandLine.Contains($AppJarName) } |
     ForEach-Object {
         Write-Host "Stopping existing music downloader process $($_.ProcessId)..."
         Stop-Process -Id $_.ProcessId -Force
