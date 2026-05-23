@@ -28,7 +28,11 @@
 
 ## 网关说明
 
-当前实现采用 Karpov Gateway 上游 `music.proto` 中定义的 REST 路由：
+当前默认通过 Karpov Console 的同源代理入口访问上游音乐 API：
+
+- `music.gateway.base-url`: `https://gateway.karpov.cn/api/proxy`
+
+代理入口会把下面这些路径转发到 Karpov Gateway 上游 `music.proto` 中定义的 REST 路由：
 
 - `/v1/{provider}/search/songs`
 - `/v1/{provider}/songs/{id}`
@@ -38,7 +42,7 @@
 - `/v1/{provider}/artists/{id}`
 - `/v1/{provider}/playlists/{id}`
 
-注意：`https://gateway.karpov.cn` 当前直接访问返回的是 Karpov Console HTML 页面，不是公开音乐 API JSON。要正常搜索和下载，需要把 `src/main/resources/application.yml` 中的 `music.gateway.base-url` 改成已部署并开放音乐 API 的 Karpov Gateway 后端地址，或提供可用的 API Key/登录信息后再接入认证头。
+注意：`https://gateway.karpov.cn` 当前直接访问 `/v1/**` 返回的是 Karpov Console HTML 页面，不是公开音乐 API JSON；本项目因此默认使用 `/api/proxy/**`。
 
 如果网关需要 API Key，请在本机环境变量中配置，不要写入 Git：
 
@@ -47,6 +51,8 @@ setx MUSIC_GATEWAY_API_KEY "你的 API Key"
 ```
 
 重新打开终端后再运行 `.\run.cmd`。
+
+如果搜索返回 `50200` 且提示 `all credentials exhausted` / `no candidate credential available`，说明请求已经到达远端网关，但 Karpov Gateway 的音乐平台凭据池没有可用的 QQ 音乐或网易云音乐账号凭据，需要在 Karpov Console 后台补充或刷新平台凭据。
 
 如果你的网关实际路径不同，只需要调整候选项，不必改 Java 代码。
 

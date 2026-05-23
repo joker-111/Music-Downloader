@@ -169,6 +169,16 @@ public class GatewayClient {
             return "empty response body";
         }
         String trimmed = body.trim().replaceAll("\\s+", " ");
+        try {
+            JsonNode json = objectMapper.readTree(trimmed);
+            JsonNode code = first(json, "code", "status", "error");
+            JsonNode message = first(json, "message", "msg", "error_description");
+            if (message != null && message.isTextual()) {
+                return code == null ? message.asText() : "gateway error " + code.asText() + ": " + message.asText();
+            }
+        } catch (Exception ignored) {
+            // Fall through to the compact raw body below.
+        }
         return trimmed.length() > 240 ? trimmed.substring(0, 240) + "..." : trimmed;
     }
 

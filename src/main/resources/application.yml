@@ -7,22 +7,22 @@ spring:
 
 music:
   gateway:
-    base-url: https://gateway.karpov.cn
+    base-url: https://gateway.karpov.cn/api/proxy
     timeout: 15s
     user-agent: Mozilla/5.0 MusicDownloader/1.0
     api-key: ${MUSIC_GATEWAY_API_KEY:}
     candidates:
       search:
-        - "/v1/{platform}/search/songs?q={keyword}&page={page}&page_size={limit}"
+        - "/{platform}/search/songs?q={keyword}&page={page}&page_size={limit}"
       song:
-        - "/v1/{platform}/songs/{id}"
+        - "/{platform}/songs/{id}"
       download:
-        - "/v1/{platform}/songs/{id}/url?quality={quality}"
+        - "/{platform}/songs/{id}/url?quality={quality}"
       lyric:
-        - "/v1/{platform}/songs/{id}/lyric"
+        - "/{platform}/songs/{id}/lyric"
       artist:
-        - "/v1/{platform}/artists/{id}"
+        - "/{platform}/artists/{id}"
       playlist:
-        - "/v1/{platform}/playlists/{id}"
+        - "/{platform}/playlists/{id}"
       album:
-        - "/v1/{platform}/albums/{id}"
+        - "/{platform}/albums/{id}"
