@@ -39,7 +39,7 @@
 
 body {
   min-height: 100vh;
-  font-family: "Inter", "Segoe UI", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Segoe UI", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-primary);
   color: var(--text);
   overflow-x: hidden;
@@ -874,8 +874,7 @@ select {
   min-height: 200px;
 }
 
-.empty-detail,
-.empty-content {
+.empty-detail {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -885,15 +884,13 @@ select {
   color: var(--muted);
 }
 
-.empty-detail svg,
-.empty-content svg {
+.empty-detail svg {
   width: 56px;
   height: 56px;
   opacity: 0.4;
 }
 
-.empty-detail p,
-.empty-content p {
+.empty-detail p {
   font-size: 14px;
   color: var(--text-secondary);
 }
