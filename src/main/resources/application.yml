@@ -12,37 +12,16 @@ music:
     user-agent: Mozilla/5.0 MusicDownloader/1.0
     candidates:
       search:
-        - "/api/search?server={platform}&keyword={keyword}&keywords={keyword}&limit={limit}&page={page}"
-        - "/search?server={platform}&keyword={keyword}&keywords={keyword}&limit={limit}&page={page}"
-        - "/meting/api?server={platform}&type=search&id={keyword}&limit={limit}&page={page}"
-        - "/?server={platform}&type=search&id={keyword}&limit={limit}&page={page}"
+        - "/v1/{platform}/search/songs?q={keyword}&page={page}&page_size={limit}"
       song:
-        - "/api/song?server={platform}&id={id}"
-        - "/song?server={platform}&id={id}"
-        - "/meting/api?server={platform}&type=song&id={id}"
-        - "/?server={platform}&type=song&id={id}"
+        - "/v1/{platform}/songs/{id}"
       download:
-        - "/api/url?server={platform}&id={id}&quality={quality}"
-        - "/url?server={platform}&id={id}&quality={quality}"
-        - "/meting/api?server={platform}&type=url&id={id}&br={quality}"
-        - "/?server={platform}&type=url&id={id}&br={quality}"
+        - "/v1/{platform}/songs/{id}/url?quality={quality}"
       lyric:
-        - "/api/lyric?server={platform}&id={id}"
-        - "/lyric?server={platform}&id={id}"
-        - "/meting/api?server={platform}&type=lyric&id={id}"
-        - "/?server={platform}&type=lyric&id={id}"
+        - "/v1/{platform}/songs/{id}/lyric"
       artist:
-        - "/api/artist?server={platform}&id={id}"
-        - "/artist?server={platform}&id={id}"
-        - "/meting/api?server={platform}&type=artist&id={id}"
-        - "/?server={platform}&type=artist&id={id}"
+        - "/v1/{platform}/artists/{id}"
       playlist:
-        - "/api/playlist?server={platform}&id={id}"
-        - "/playlist?server={platform}&id={id}"
-        - "/meting/api?server={platform}&type=playlist&id={id}"
-        - "/?server={platform}&type=playlist&id={id}"
+        - "/v1/{platform}/playlists/{id}"
       album:
-        - "/api/album?server={platform}&id={id}"
-        - "/album?server={platform}&id={id}"
-        - "/meting/api?server={platform}&type=album&id={id}"
-        - "/?server={platform}&type=album&id={id}"
+        - "/v1/{platform}/albums/{id}"

@@ -21,11 +21,7 @@ import org.springframework.stereotype.Service;
 public class MusicService {
     private static final List<Platform> PLATFORMS = List.of(
             new Platform("netease", "\u7f51\u6613\u4e91\u97f3\u4e50"),
-            new Platform("qq", "QQ\u97f3\u4e50"),
-            new Platform("tencent", "QQ\u97f3\u4e50"),
-            new Platform("kugou", "\u9177\u72d7\u97f3\u4e50"),
-            new Platform("kuwo", "\u9177\u6211\u97f3\u4e50"),
-            new Platform("migu", "\u54aa\u5495\u97f3\u4e50")
+            new Platform("qqmusic", "QQ\u97f3\u4e50")
     );
 
     private static final Map<String, String> PLATFORM_ALIASES = Map.ofEntries(
@@ -35,21 +31,12 @@ public class MusicService {
             Map.entry("wyyy", "netease"),
             Map.entry("\u7f51\u6613\u4e91", "netease"),
             Map.entry("\u7f51\u6613\u4e91\u97f3\u4e50", "netease"),
-            Map.entry("qq", "qq"),
-            Map.entry("qqmusic", "qq"),
-            Map.entry("qq\u97f3\u4e50", "qq"),
-            Map.entry("tencent", "tencent"),
-            Map.entry("\u817e\u8baf", "tencent"),
-            Map.entry("tencentmusic", "tencent"),
-            Map.entry("kugou", "kugou"),
-            Map.entry("\u9177\u72d7", "kugou"),
-            Map.entry("\u9177\u72d7\u97f3\u4e50", "kugou"),
-            Map.entry("kuwo", "kuwo"),
-            Map.entry("\u9177\u6211", "kuwo"),
-            Map.entry("\u9177\u6211\u97f3\u4e50", "kuwo"),
-            Map.entry("migu", "migu"),
-            Map.entry("\u54aa\u5495", "migu"),
-            Map.entry("\u54aa\u5495\u97f3\u4e50", "migu")
+            Map.entry("qq", "qqmusic"),
+            Map.entry("qqmusic", "qqmusic"),
+            Map.entry("qq\u97f3\u4e50", "qqmusic"),
+            Map.entry("tencent", "qqmusic"),
+            Map.entry("\u817e\u8baf", "qqmusic"),
+            Map.entry("tencentmusic", "qqmusic")
     );
 
     private final GatewayClient gatewayClient;
@@ -79,7 +66,7 @@ public class MusicService {
         JsonNode body = payload.body();
         String title = firstText(body, "name", "title", "songName", "songname", "albumName");
         String subtitle = buildSubtitle(type, body);
-        String cover = firstText(body, "pic", "cover", "coverUrl", "image", "albumPic", "picUrl", "avatar", "picurl");
+        String cover = firstText(body, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl", "avatar", "avatarUrl", "avatar_url", "picurl");
         Map<String, String> fields = collectFields(body, type);
         return new DetailResult(type, normalizedPlatform, id, title, subtitle, cover, fields, body);
     }
@@ -93,6 +80,9 @@ public class MusicService {
         ));
         JsonNode body = payload.body();
         String title = firstText(body, "name", "title", "songName", "songname", "filename");
+        if (title == null || title.isBlank()) {
+            title = firstText(body.get("song"), "name", "title", "songName", "songname", "filename");
+        }
         String url = findUrl(body);
         if (url == null && body != null && body.isTextual()) {
             String text = body.asText();
@@ -141,10 +131,16 @@ public class MusicService {
         String title = firstText(item, "name", "title", "songName", "songname", "trackName");
         String artist = firstText(item, "artist", "artists", "singer", "author", "ar", "artistName");
         String album = firstText(item, "album", "albumName", "albumname", "al", "albumTitle");
-        String cover = firstText(item, "pic", "cover", "coverUrl", "image", "albumPic", "picUrl", "img");
-        String duration = firstText(item, "duration", "interval", "time", "dt", "length");
+        String cover = firstText(item, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl", "img");
+        if (cover == null || cover.isBlank()) {
+            cover = firstText(item.get("album"), "cover", "coverUrl", "cover_url", "pic", "picUrl");
+        }
+        String duration = firstText(item, "duration", "interval", "time", "dt", "length", "durationSeconds", "duration_seconds");
         String artistId = firstText(item, "artistId", "artist_id", "singerId", "singerid", "authorId", "author_id", "arid");
         String albumId = firstText(item, "albumId", "album_id", "albummid", "albumMid", "albumid");
+        if (albumId == null || albumId.isBlank()) {
+            albumId = firstText(item.get("album"), "id", "mid", "albumId", "album_id");
+        }
         String playlistId = firstText(item, "playlistId", "playlist_id", "sheetId", "sheetid", "songListId", "listId");
         return new TrackSummary(id, platform, title, artist, album, cover, duration, artistId, albumId, playlistId, item);
     }
@@ -204,8 +200,8 @@ public class MusicService {
         addField(fields, "title", firstText(body, "name", "title", "songName", "songname"));
         addField(fields, "artist", firstText(body, "artist", "artists", "singer", "author", "ar"));
         addField(fields, "album", firstText(body, "album", "albumName", "albumname", "al"));
-        addField(fields, "cover", firstText(body, "pic", "cover", "coverUrl", "image", "albumPic", "picUrl"));
-        addField(fields, "duration", firstText(body, "duration", "interval", "time", "dt", "length"));
+        addField(fields, "cover", firstText(body, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl"));
+        addField(fields, "duration", firstText(body, "duration", "interval", "time", "dt", "length", "durationSeconds", "duration_seconds"));
         addField(fields, "artistId", firstText(body, "artistId", "artist_id", "singerId", "singerid", "authorId", "author_id"));
         addField(fields, "albumId", firstText(body, "albumId", "album_id", "albummid", "albumMid", "albumid"));
         addField(fields, "playlistId", firstText(body, "playlistId", "playlist_id", "sheetId", "sheetid", "songListId"));
@@ -259,6 +255,11 @@ public class MusicService {
                 || lower.contains("pic")
                 || lower.contains("url")
                 || lower.contains("lyric")
+                || lower.equals("lrc")
+                || lower.equals("trans")
+                || lower.equals("quality")
+                || lower.equals("format")
+                || lower.equals("available")
                 || lower.contains("desc")
                 || lower.contains("count")
                 || lower.contains("time")
@@ -292,7 +293,7 @@ public class MusicService {
             }
         }
         if (node.isObject()) {
-            for (String container : List.of("data", "result", "song", "info", "detail")) {
+            for (String container : List.of("data", "result", "song", "audio", "lyric", "info", "detail")) {
                 JsonNode child = node.get(container);
                 String nested = firstText(child, fields);
                 if (nested != null && !nested.isBlank()) {
@@ -321,7 +322,7 @@ public class MusicService {
             return String.join(" / ", values);
         }
         if (value.isObject()) {
-            for (String field : List.of("name", "title", "url", "id", "mid", "text", "value")) {
+            for (String field : List.of("name", "title", "url", "id", "mid", "text", "value", "lrc", "trans")) {
                 String nested = scalar(value.get(field));
                 if (nested != null && !nested.isBlank()) {
                     return nested;
@@ -346,7 +347,7 @@ public class MusicService {
             }
         }
         if (body.isObject()) {
-            for (String container : List.of("data", "result", "song", "info", "urlData")) {
+            for (String container : List.of("data", "result", "song", "audio", "info", "urlData")) {
                 String nested = findUrl(body.get(container));
                 if (nested != null && !nested.isBlank()) {
                     return nested;

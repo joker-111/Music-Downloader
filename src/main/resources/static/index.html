@@ -26,6 +26,7 @@
       <form id="searchForm" class="searchbar">
         <div class="search-wrapper">
           <select id="platform" aria-label="音乐平台"></select>
+          <div id="platformChoices" class="platform-choices" aria-label="音乐平台"></div>
           <input id="keyword" name="keyword" placeholder="搜索歌曲、歌手、专辑或歌单" autocomplete="off" required>
           <button type="submit" class="search-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -111,10 +112,10 @@
           <div class="toolbar-row">
             <div class="quality-selector">
               <select id="quality" aria-label="音质">
-                <option value="128">标准 128k</option>
-                <option value="320" selected>高品质 320k</option>
-                <option value="740">无损 FLAC</option>
-                <option value="999">最佳可用</option>
+                <option value="MP3_128">标准 128k</option>
+                <option value="MP3_320" selected>高品质 320k</option>
+                <option value="FLAC">无损 FLAC</option>
+                <option value="MASTER">最佳可用</option>
               </select>
             </div>
             <button id="downloadInfoBtn" class="action-btn" disabled>

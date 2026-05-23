@@ -70,11 +70,8 @@ public class GatewayClient {
             return List.of("");
         }
         return switch (platform) {
-            case "netease" -> List.of("netease", "163");
-            case "qq", "tencent" -> List.of("qq", "tencent");
-            case "kugou" -> List.of("kugou");
-            case "kuwo" -> List.of("kuwo");
-            case "migu" -> List.of("migu");
+            case "netease" -> List.of("netease");
+            case "qq", "tencent", "qqmusic" -> List.of("qqmusic");
             default -> List.of(platform);
         };
     }

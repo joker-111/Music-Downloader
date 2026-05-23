@@ -85,7 +85,7 @@ public class MusicController {
     public ApiResponse<DownloadInfo> downloadInfo(
             @PathVariable String platform,
             @PathVariable String id,
-            @RequestParam(defaultValue = "320") String quality
+            @RequestParam(defaultValue = "MP3_320") String quality
     ) {
         return ApiResponse.ok(musicService.downloadInfo(platform, id, quality));
     }
@@ -94,7 +94,7 @@ public class MusicController {
     public ResponseEntity<byte[]> download(
             @PathVariable String platform,
             @PathVariable String id,
-            @RequestParam(defaultValue = "320") String quality
+            @RequestParam(defaultValue = "MP3_320") String quality
     ) throws IOException, InterruptedException {
         DownloadInfo info = musicService.downloadInfo(platform, id, quality);
         if (info.url() == null || info.url().isBlank()) {

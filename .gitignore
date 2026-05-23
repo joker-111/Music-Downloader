@@ -8,3 +8,4 @@ target/
 *.class
 *.jar
 *.war
+.tmp-karpov-gateway/

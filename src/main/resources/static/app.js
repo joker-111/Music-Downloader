@@ -29,6 +29,7 @@ const text = {
   cover: "\u5c01\u9762",
   hint: "\u63d0\u793a",
   noStructuredFields: "\u6ca1\u6709\u53ef\u5c55\u793a\u7684\u7ed3\u6784\u5316\u5b57\u6bb5\u3002",
+  loadPlatformsFailed: "\u5e73\u53f0\u5217\u8868\u52a0\u8f7d\u5931\u8d25",
   songId: "\u6b4c\u66f2 ID",
   artistId: "\u6b4c\u624b ID",
   albumId: "\u4e13\u8f91 ID",
@@ -43,7 +44,8 @@ const text = {
 const state = {
   selected: null,
   tab: "song",
-  lastResult: null
+  lastResult: null,
+  platforms: []
 };
 
 const $ = (id) => document.getElementById(id);
@@ -95,9 +97,33 @@ function normalizeText(value) {
 
 async function loadPlatforms() {
   const platforms = await api("/api/platforms");
+  state.platforms = platforms;
   $("platform").innerHTML = platforms.map((platform) =>
     `<option value="${escapeHtml(platform.id)}">${escapeHtml(platform.name)} (${escapeHtml(platform.id)})</option>`
   ).join("");
+  renderPlatformChoices(platforms);
+}
+
+function renderPlatformChoices(platforms) {
+  $("platformChoices").innerHTML = platforms.map((platform, index) => `
+    <button type="button" class="platform-choice${index === 0 ? " active" : ""}" data-platform="${escapeHtml(platform.id)}">
+      <span>${escapeHtml(platform.name)}</span>
+      <small>${escapeHtml(platform.id)}</small>
+    </button>
+  `).join("");
+  document.querySelectorAll(".platform-choice").forEach((button) => {
+    button.addEventListener("click", () => setPlatform(button.dataset.platform));
+  });
+  if (platforms.length) {
+    setPlatform($("platform").value || platforms[0].id);
+  }
+}
+
+function setPlatform(platform) {
+  $("platform").value = platform;
+  document.querySelectorAll(".platform-choice").forEach((button) => {
+    button.classList.toggle("active", button.dataset.platform === platform);
+  });
 }
 
 async function search(event) {
@@ -153,7 +179,8 @@ async function selectTrack(track, button) {
   document.querySelectorAll(".track").forEach((item) => item.classList.remove("active"));
   button.classList.add("active");
   $("cover").src = track.cover || "";
-  $("selectedPlatform").textContent = `${platformLabel(track.platform)} · ${track.platform || $("platform").value}`;
+  updateCoverVisibility();
+  $("selectedPlatform").textContent = `${platformLabel(track.platform)} \u00b7 ${track.platform || $("platform").value}`;
   $("title").textContent = track.title || track.id || text.unknownTrack;
   $("artist").textContent = track.artist ? `${text.artist}: ${track.artist}` : "";
   $("album").textContent = track.album ? `${text.album}: ${track.album}` : "";
@@ -265,7 +292,7 @@ function renderDetail(tab, data) {
 }
 
 function renderRaw(value) {
-  setRaw(value.raw || value);
+  setRaw(value?.raw || value);
 }
 
 function detailMarkup(rows) {
@@ -311,6 +338,7 @@ function chip(label, value) {
 
 function resetSelection() {
   $("cover").src = "";
+  updateCoverVisibility();
   $("selectedPlatform").textContent = text.unselected;
   $("title").textContent = text.chooseTrack;
   $("artist").textContent = "";
@@ -320,6 +348,11 @@ function resetSelection() {
   resetDownload();
   $("detailView").textContent = text.detailEmpty;
   setRaw(text.rawEmpty);
+}
+
+function updateCoverVisibility() {
+  const hasCover = Boolean($("cover").getAttribute("src"));
+  $("cover").style.opacity = hasCover ? "1" : "0";
 }
 
 function resetDownload() {
@@ -376,10 +409,8 @@ function platformLabel(id) {
   return {
     netease: "\u7f51\u6613\u4e91\u97f3\u4e50",
     qq: "QQ\u97f3\u4e50",
-    tencent: "QQ\u97f3\u4e50",
-    kugou: "\u9177\u72d7\u97f3\u4e50",
-    kuwo: "\u9177\u6211\u97f3\u4e50",
-    migu: "\u54aa\u5495\u97f3\u4e50"
+    qqmusic: "QQ\u97f3\u4e50",
+    tencent: "QQ\u97f3\u4e50"
   }[id] || id || "\u672a\u77e5\u5e73\u53f0";
 }
 
@@ -396,20 +427,27 @@ function tabLabel(tab) {
 
 function qualityLabel(value) {
   return {
-    "128": "\u6807\u51c6 128k",
-    "320": "\u9ad8\u54c1\u8d28 320k",
-    "740": "\u65e0\u635f FLAC",
-    "999": "\u6700\u4f73\u53ef\u7528"
+    "MP3_128": "\u6807\u51c6 128k",
+    "MP3_320": "\u9ad8\u54c1\u8d28 320k",
+    "FLAC": "\u65e0\u635f FLAC",
+    "MASTER": "\u6700\u4f73\u53ef\u7528"
   }[String(value)] || normalizeText(value);
 }
 
 $("searchForm").addEventListener("submit", search);
 $("downloadInfoBtn").addEventListener("click", loadDownloadInfo);
 $("quality").addEventListener("change", resetDownload);
+$("platform").addEventListener("change", () => setPlatform($("platform").value));
 document.querySelectorAll(".tab").forEach((button) => {
   button.addEventListener("click", () => loadTab(button.dataset.tab));
 });
 
 loadPlatforms()
-  .then(() => setStatus(text.ready))
-  .catch(showError);
+  .then(() => {
+    updateCoverVisibility();
+    setStatus(text.ready);
+  })
+  .catch((error) => {
+    $("platformChoices").textContent = text.loadPlatformsFailed;
+    showError(error);
+  });
