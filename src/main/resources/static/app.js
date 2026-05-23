@@ -245,6 +245,7 @@ async function loadDownloadInfo() {
     if (info.url) {
       $("downloadBtn").href = `/api/song/${platform}/${id}/download?quality=${encodeURIComponent(quality)}`;
       $("downloadBtn").classList.remove("disabled");
+      $("downloadBtn").hidden = false;
       setStatus(text.downloadReady);
     } else {
       setStatus(text.downloadUnavailable, "warn");
@@ -358,6 +359,7 @@ function updateCoverVisibility() {
 function resetDownload() {
   $("downloadBtn").classList.add("disabled");
   $("downloadBtn").href = "#";
+  $("downloadBtn").hidden = true;
 }
 
 function idForTab(tab) {
