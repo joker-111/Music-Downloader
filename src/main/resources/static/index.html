@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>&#38899;&#20048;&#19979;&#36733;&#22120;</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <strong>&#38899;&#20048;&#19979;&#36733;&#22120;</strong>
+        <span>&#32479;&#19968;&#25509;&#20837; gateway.karpov.cn</span>
+      </div>
+      <form id="searchForm" class="searchbar">
+        <select id="platform" aria-label="&#38899;&#20048;&#24179;&#21488;"></select>
+        <input id="keyword" name="keyword" placeholder="&#25628;&#32034;&#27468;&#26354;&#12289;&#27468;&#25163;&#12289;&#19987;&#36753;&#25110;&#27468;&#21333;" autocomplete="off" required>
+        <button type="submit">&#25628;&#32034;</button>
+      </form>
+    </header>
+
+    <section class="content-grid">
+      <aside class="sidebar" aria-label="&#25628;&#32034;&#32467;&#26524;">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">&#25628;&#32034;&#32467;&#26524;</span>
+            <strong>&#20505;&#36873;&#27468;&#26354;</strong>
+          </div>
+          <span id="resultCount" class="badge">0</span>
+        </div>
+        <div id="resultList" class="result-list empty">&#36755;&#20837;&#20851;&#38190;&#35789;&#24320;&#22987;&#25628;&#32034;&#12290;</div>
+      </aside>
+
+      <section class="main-panel" aria-label="&#27468;&#26354;&#35814;&#24773;">
+        <section class="summary">
+          <img id="cover" alt="" src="">
+          <div class="summary-copy">
+            <p id="selectedPlatform" class="muted">&#23578;&#26410;&#36873;&#25321;&#27468;&#26354;</p>
+            <h1 id="title">&#35831;&#36873;&#25321;&#19968;&#39318;&#27468;&#26354;</h1>
+            <p id="artist" class="meta"></p>
+            <p id="album" class="meta"></p>
+            <div id="linkedIds" class="linked-ids"></div>
+          </div>
+        </section>
+
+        <section class="download-panel" aria-label="&#19979;&#36733;&#25805;&#20316;">
+          <div class="download-copy">
+            <span class="eyebrow">&#19979;&#36733;</span>
+            <strong>&#36873;&#25321;&#38899;&#36136;&#21518;&#33719;&#21462;&#19979;&#36733;&#38142;&#25509;</strong>
+          </div>
+          <div class="toolbar-row">
+            <select id="quality" aria-label="&#38899;&#36136;">
+              <option value="128">&#26631;&#20934; 128k</option>
+              <option value="320" selected>&#39640;&#21697;&#36136; 320k</option>
+              <option value="740">&#26080;&#25439; FLAC</option>
+              <option value="999">&#26368;&#20339;&#21487;&#29992;</option>
+            </select>
+            <button id="downloadInfoBtn" disabled>&#33719;&#21462;&#19979;&#36733;&#38142;&#25509;</button>
+            <a id="downloadBtn" class="button disabled" href="#">&#19979;&#36733;</a>
+          </div>
+        </section>
+
+        <div id="status" class="status">&#23601;&#32490;&#12290;</div>
+
+        <nav class="tabs" aria-label="&#35814;&#24773;">
+          <button class="tab active" data-tab="song">&#27468;&#26354;&#35814;&#24773;</button>
+          <button class="tab" data-tab="lyric">&#27468;&#35789;</button>
+          <button class="tab" data-tab="artist">&#27468;&#25163;</button>
+          <button class="tab" data-tab="album">&#19987;&#36753;</button>
+          <button class="tab" data-tab="playlist">&#27468;&#21333;</button>
+        </nav>
+
+        <section class="details-grid">
+          <article class="card">
+            <div class="card-head">
+              <span>&#32467;&#26500;&#21270;&#35814;&#24773;</span>
+            </div>
+            <div id="detailView" class="detail-view">&#36873;&#25321;&#25628;&#32034;&#32467;&#26524;&#21518;&#33258;&#21160;&#23637;&#31034;&#12290;</div>
+          </article>
+          <article class="card raw-card">
+            <div class="card-head">
+              <span>&#21407;&#22987;&#21709;&#24212;</span>
+            </div>
+            <pre id="content" class="content">&#36873;&#25321;&#25628;&#32034;&#32467;&#26524;&#21518;&#33258;&#21160;&#21152;&#36733;&#12290;</pre>
+          </article>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
