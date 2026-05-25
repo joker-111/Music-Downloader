@@ -8,6 +8,12 @@ import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
+/**
+ * Karpov Gateway 的外部化配置。
+ *
+ * <p>候选路径按操作类型分组，GatewayClient 会按顺序尝试这些路径，
+ * 这样网关 REST 路由变化时通常只需要改配置，不需要改 Java 代码。</p>
+ */
 @Validated
 @ConfigurationProperties(prefix = "music.gateway")
 public class GatewayProperties {
@@ -57,6 +63,9 @@ public class GatewayProperties {
         this.candidates = candidates;
     }
 
+    /**
+     * 返回指定操作的候选路径；没有配置时返回空列表，让调用方统一处理失败。
+     */
     public List<String> candidatesFor(String operation) {
         return candidates.getOrDefault(operation, new ArrayList<>());
     }

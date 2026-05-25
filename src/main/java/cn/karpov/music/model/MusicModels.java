@@ -4,6 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 音乐业务使用的轻量 DTO 集合。
+ *
+ * <p>raw 字段保留上游网关原始 JSON，方便前端调试面板展示，也避免过早丢失平台差异字段。</p>
+ */
 public final class MusicModels {
     private MusicModels() {
     }

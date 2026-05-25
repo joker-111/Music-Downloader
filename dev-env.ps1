@@ -1,12 +1,29 @@
+$Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+[Console]::InputEncoding = $Utf8NoBom
+[Console]::OutputEncoding = $Utf8NoBom
+$OutputEncoding = $Utf8NoBom
+
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $LocalJava = Join-Path $ProjectRoot ".tools\jdk-17.0.19+10"
 $LocalMaven = Join-Path $ProjectRoot ".tools\apache-maven-3.9.16"
 
-if (-not $env:JAVA_HOME -and (Test-Path $LocalJava)) {
+function Test-JavaHome {
+    param([string]$Path)
+
+    return -not [string]::IsNullOrWhiteSpace($Path) -and (Test-Path (Join-Path $Path "bin\java.exe"))
+}
+
+function Test-MavenHome {
+    param([string]$Path)
+
+    return -not [string]::IsNullOrWhiteSpace($Path) -and (Test-Path (Join-Path $Path "bin\mvn.cmd"))
+}
+
+if (-not (Test-JavaHome $env:JAVA_HOME) -and (Test-Path $LocalJava)) {
     $env:JAVA_HOME = $LocalJava
 }
 
-if (-not $env:MAVEN_HOME -and (Test-Path $LocalMaven)) {
+if (-not (Test-MavenHome $env:MAVEN_HOME) -and (Test-Path $LocalMaven)) {
     $env:MAVEN_HOME = $LocalMaven
 }
 

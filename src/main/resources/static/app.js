@@ -1,49 +1,49 @@
 const text = {
-  nonJson: "\u975e JSON \u54cd\u5e94",
-  requestFailed: "\u8bf7\u6c42\u5931\u8d25",
-  unknown: "\u672a\u77e5",
-  searchLoading: "\u6b63\u5728\u641c\u7d22\uff0c\u8bf7\u7a0d\u5019...",
-  noResults: "\u6ca1\u6709\u627e\u5230\u5339\u914d\u7684\u6b4c\u66f2\uff0c\u8bf7\u6362\u4e2a\u5173\u952e\u8bcd\u518d\u8bd5\u3002",
-  unknownTrack: "\u672a\u77e5\u6b4c\u66f2",
-  noTrackMeta: "\u6682\u65e0\u6b4c\u624b\u6216\u4e13\u8f91\u4fe1\u606f",
-  artist: "\u6b4c\u624b",
-  album: "\u4e13\u8f91",
-  selectValidTrack: "\u8bf7\u5148\u9009\u62e9\u4e00\u9996\u6709\u6548\u6b4c\u66f2\u3002",
-  noTrackSelected: "\u5c1a\u672a\u9009\u62e9\u6b4c\u66f2\u3002",
-  missingIdPrefix: "\u7f3a\u5c11",
-  missingIdSuffix: "\u6240\u9700\u7684 ID\u3002",
-  missingIdRawPrefix: "\u5f53\u524d\u641c\u7d22\u7ed3\u679c\u6ca1\u6709\u8fd4\u56de",
-  loading: "\u6b63\u5728\u52a0\u8f7d...",
-  downloadFetching: "\u6b63\u5728\u83b7\u53d6\u4e0b\u8f7d\u94fe\u63a5...",
-  downloadReady: "\u4e0b\u8f7d\u94fe\u63a5\u5df2\u51c6\u5907\u597d\u3002",
-  downloadUnavailable: "\u7f51\u5173\u6ca1\u6709\u8fd4\u56de\u53ef\u4e0b\u8f7d\u5730\u5740\u3002",
-  noLyric: "\u672a\u8fd4\u56de\u6b4c\u8bcd",
-  platform: "\u5e73\u53f0",
-  lyric: "\u6b4c\u8bcd",
-  title: "\u6807\u9898",
-  quality: "\u97f3\u8d28",
-  downloadUrl: "\u4e0b\u8f7d\u5730\u5740",
-  noDownloadUrl: "\u672a\u8fd4\u56de\u4e0b\u8f7d\u5730\u5740",
-  filename: "\u6587\u4ef6\u540d",
-  summary: "\u6458\u8981",
-  cover: "\u5c01\u9762",
-  hint: "\u63d0\u793a",
-  noStructuredFields: "\u6ca1\u6709\u53ef\u5c55\u793a\u7684\u7ed3\u6784\u5316\u5b57\u6bb5\u3002",
-  loadPlatformsFailed: "\u5e73\u53f0\u5217\u8868\u52a0\u8f7d\u5931\u8d25",
-  songId: "\u6b4c\u66f2 ID",
-  artistId: "\u6b4c\u624b ID",
-  albumId: "\u4e13\u8f91 ID",
-  playlistId: "\u6b4c\u5355 ID",
-  unselected: "\u5c1a\u672a\u9009\u62e9\u6b4c\u66f2",
-  chooseTrack: "\u8bf7\u9009\u62e9\u4e00\u9996\u6b4c\u66f2",
-  detailEmpty: "\u9009\u62e9\u641c\u7d22\u7ed3\u679c\u540e\u81ea\u52a8\u5c55\u793a\u3002",
-  rawEmpty: "\u9009\u62e9\u641c\u7d22\u7ed3\u679c\u540e\u81ea\u52a8\u52a0\u8f7d\u3002",
-  searchReadyDetail: "\u641c\u7d22\u7ed3\u679c\u5df2\u5728\u5de6\u4fa7\u52a0\u8f7d\uff0c\u9009\u62e9\u4e00\u9996\u6b4c\u66f2\u67e5\u770b\u8be6\u60c5\u3002",
-  rawSearchSummary: "\u641c\u7d22\u54cd\u5e94\u5df2\u6536\u8d77",
-  rawDetailSummary: "\u5f53\u524d\u8be6\u60c5\u54cd\u5e94",
-  rawErrorSummary: "\u8bf7\u6c42\u5931\u8d25\u54cd\u5e94",
-  rawEmptySummary: "\u6682\u65e0\u8c03\u8bd5\u54cd\u5e94",
-  ready: "\u5c31\u7eea\u3002"
+  nonJson: "非 JSON 响应",
+  requestFailed: "请求失败",
+  unknown: "未知",
+  searchLoading: "正在搜索，请稍候...",
+  noResults: "没有找到匹配的歌曲，请换个关键词再试。",
+  unknownTrack: "未知歌曲",
+  noTrackMeta: "暂无歌手或专辑信息",
+  artist: "歌手",
+  album: "专辑",
+  selectValidTrack: "请先选择一首有效歌曲。",
+  noTrackSelected: "尚未选择歌曲。",
+  missingIdPrefix: "缺少",
+  missingIdSuffix: "所需的 ID。",
+  missingIdRawPrefix: "当前搜索结果没有返回",
+  loading: "正在加载...",
+  downloadFetching: "正在获取下载链接...",
+  downloadReady: "下载链接已准备好。",
+  downloadUnavailable: "网关没有返回可下载地址。",
+  noLyric: "未返回歌词",
+  platform: "平台",
+  lyric: "歌词",
+  title: "标题",
+  quality: "音质",
+  downloadUrl: "下载地址",
+  noDownloadUrl: "未返回下载地址",
+  filename: "文件名",
+  summary: "摘要",
+  cover: "封面",
+  hint: "提示",
+  noStructuredFields: "没有可展示的结构化字段。",
+  loadPlatformsFailed: "平台列表加载失败",
+  songId: "歌曲 ID",
+  artistId: "歌手 ID",
+  albumId: "专辑 ID",
+  playlistId: "歌单 ID",
+  unselected: "尚未选择歌曲",
+  chooseTrack: "请选择一首歌曲",
+  detailEmpty: "选择搜索结果后自动展示。",
+  rawEmpty: "选择搜索结果后自动加载。",
+  searchReadyDetail: "搜索结果已在左侧加载，选择一首歌曲查看详情。",
+  rawSearchSummary: "搜索响应已收起",
+  rawDetailSummary: "当前详情响应",
+  rawErrorSummary: "请求失败响应",
+  rawEmptySummary: "暂无调试响应",
+  ready: "就绪。"
 };
 
 const state = {
@@ -54,16 +54,17 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
 async function api(path) {
-  const response = await fetch(path);
+  const response = await fetch(path, { headers: { Accept: "application/json" } });
   const json = await response.json().catch(() => ({
     success: false,
     message: `${text.nonJson}: ${response.status}`
   }));
   if (!response.ok || !json.success) {
     const error = new Error(json.message || `${text.requestFailed}: ${response.status}`);
-    error.payload = json.data;
+    error.payload = json.data || json;
     throw error;
   }
   return json.data;
@@ -74,8 +75,26 @@ function pretty(value) {
 }
 
 function setStatus(message, tone = "normal") {
-  $("status").textContent = message;
-  $("status").className = `status ${tone}`;
+  const status = $("status");
+  const statusText = $("statusText");
+  if (!status) {
+    return;
+  }
+  if (statusText) {
+    statusText.textContent = message;
+  } else {
+    status.textContent = message;
+  }
+  status.className = `status ${tone}`;
+}
+
+function setBackendState(message, tone = "pending") {
+  const badge = $("backendState");
+  if (!badge) {
+    return;
+  }
+  badge.textContent = message;
+  badge.dataset.tone = tone;
 }
 
 function setRaw(value, isError = false) {
@@ -99,6 +118,7 @@ function showError(error) {
   setStatus(error.message, "error");
   setRaw(error.payload || error.message, true);
   setRawSummary(text.rawErrorSummary);
+  setBackendState("API 异常", "error");
 }
 
 function escapeHtml(value) {
@@ -114,32 +134,36 @@ function normalizeText(value) {
 }
 
 async function loadPlatforms() {
+  setBackendState("API 连接中", "pending");
   const platforms = await api("/api/platforms");
-  state.platforms = platforms;
-  $("platform").innerHTML = platforms.map((platform) =>
+  state.platforms = Array.isArray(platforms) ? platforms : [];
+  $("platform").innerHTML = state.platforms.map((platform) =>
     `<option value="${escapeHtml(platform.id)}">${escapeHtml(platform.name)} (${escapeHtml(platform.id)})</option>`
   ).join("");
-  renderPlatformChoices(platforms);
+  renderPlatformChoices(state.platforms);
+  setBackendState("API 已连接", "ok");
 }
 
 function renderPlatformChoices(platforms) {
+  if (!platforms.length) {
+    $("platformChoices").innerHTML = `<span class="platform-empty">${text.loadPlatformsFailed}</span>`;
+    return;
+  }
   $("platformChoices").innerHTML = platforms.map((platform, index) => `
-    <button type="button" class="platform-choice${index === 0 ? " active" : ""}" data-platform="${escapeHtml(platform.id)}">
+    <button type="button" class="platform-choice${index === 0 ? " active" : ""}" data-platform="${escapeHtml(platform.id)}" data-cursor="platform">
       <span>${escapeHtml(platform.name)}</span>
       <small>${escapeHtml(platform.id)}</small>
     </button>
   `).join("");
-  document.querySelectorAll(".platform-choice").forEach((button) => {
+  qsa(".platform-choice").forEach((button) => {
     button.addEventListener("click", () => setPlatform(button.dataset.platform));
   });
-  if (platforms.length) {
-    setPlatform($("platform").value || platforms[0].id);
-  }
+  setPlatform($("platform").value || platforms[0].id);
 }
 
 function setPlatform(platform) {
   $("platform").value = platform;
-  document.querySelectorAll(".platform-choice").forEach((button) => {
+  qsa(".platform-choice").forEach((button) => {
     button.classList.toggle("active", button.dataset.platform === platform);
   });
 }
@@ -154,20 +178,23 @@ async function search(event) {
   state.selected = null;
   resetSelection();
   $("resultCount").textContent = "0";
-  $("resultList").className = "result-list empty";
-  $("resultList").textContent = text.searchLoading;
-  setStatus(`\u6b63\u5728 ${platformLabel(platform)} \u641c\u7d22\u201c${keyword}\u201d...`);
+  $("resultList").className = "result-list empty is-loading";
+  $("resultList").innerHTML = `<div class="empty-state"><span class="empty-icon is-pulse" aria-hidden="true"></span><p>${text.searchLoading}</p></div>`;
+  setStatus(`正在 ${platformLabel(platform)} 搜索“${keyword}”...`);
+  setBackendState("搜索中", "pending");
+
   try {
     const result = await api(`/api/search?platform=${encodeURIComponent(platform)}&keyword=${encodeURIComponent(keyword)}&limit=30`);
     state.lastResult = result;
-    const tracks = result.tracks || [];
+    const tracks = Array.isArray(result.tracks) ? result.tracks : [];
     renderResults(tracks);
-    setStatus(`\u5df2\u52a0\u8f7d ${tracks.length} \u6761\u641c\u7d22\u7ed3\u679c\u3002`);
-    $("detailView").textContent = tracks.length ? text.searchReadyDetail : text.detailEmpty;
-    setRawCollapsed(result, `${text.rawSearchSummary}\uff1a${tracks.length} \u6761\u7ed3\u679c`);
+    setStatus(`已加载 ${tracks.length} 条搜索结果。`);
+    setBackendState("API 已连接", "ok");
+    $("detailView").innerHTML = tracks.length ? `<div class="empty-detail"><p>${text.searchReadyDetail}</p></div>` : `<div class="empty-detail"><p>${text.detailEmpty}</p></div>`;
+    setRawCollapsed(result, `${text.rawSearchSummary}: ${tracks.length} 条结果`);
   } catch (error) {
     $("resultList").className = "result-list empty";
-    $("resultList").textContent = error.message;
+    $("resultList").innerHTML = `<div class="empty-state"><span class="empty-icon" aria-hidden="true"></span><p>${escapeHtml(error.message)}</p></div>`;
     showError(error);
   }
 }
@@ -176,44 +203,54 @@ function renderResults(tracks) {
   $("resultCount").textContent = String(tracks.length);
   if (!tracks.length) {
     $("resultList").className = "result-list empty";
-    $("resultList").textContent = text.noResults;
+    $("resultList").innerHTML = `<div class="empty-state"><span class="empty-icon" aria-hidden="true"></span><p>${text.noResults}</p></div>`;
     return;
   }
   $("resultList").className = "result-list";
-  $("resultList").innerHTML = tracks.map((track, index) => `
-    <button class="track" data-index="${index}" title="${escapeHtml(track.title || track.id || text.unknownTrack)}">
-      <img class="thumb" src="${escapeHtml(track.cover || "")}" alt="">
-      <span class="track-copy">
-        <span class="track-title">${escapeHtml(track.title || track.id || text.unknownTrack)}</span>
-        <span class="track-meta">${escapeHtml([track.artist, track.album, track.duration].filter(Boolean).join(" / ") || text.noTrackMeta)}</span>
-      </span>
-    </button>
-  `).join("");
-  document.querySelectorAll(".track").forEach((button) => {
+  $("resultList").innerHTML = tracks.map((track, index) => {
+    const title = track.title || track.id || text.unknownTrack;
+    const meta = [track.artist, track.album, track.duration].filter(Boolean).join(" / ") || text.noTrackMeta;
+    return `
+      <button class="track" type="button" data-index="${index}" data-cursor="play" title="${escapeHtml(title)}">
+        <span class="track-number">${String(index + 1).padStart(2, "0")}</span>
+        <span class="thumb-wrap">
+          <img class="thumb" src="${escapeHtml(track.cover || "")}" alt="">
+          <span class="thumb-fallback" aria-hidden="true"></span>
+        </span>
+        <span class="track-copy">
+          <span class="track-title">${escapeHtml(title)}</span>
+          <span class="track-meta">${escapeHtml(meta)}</span>
+        </span>
+        <span class="track-arrow" aria-hidden="true">↗</span>
+      </button>
+    `;
+  }).join("");
+  qsa(".track").forEach((button, index) => {
     button.addEventListener("click", () => selectTrack(tracks[Number(button.dataset.index)], button));
+    button.style.setProperty("--delay", `${Math.min(index * 34, 520)}ms`);
   });
 }
 
 async function selectTrack(track, button) {
   state.selected = track;
-  document.querySelectorAll(".track").forEach((item) => item.classList.remove("active"));
+  qsa(".track").forEach((item) => item.classList.remove("active"));
   button.classList.add("active");
   $("cover").src = track.cover || "";
   updateCoverVisibility();
-  $("selectedPlatform").textContent = `${platformLabel(track.platform)} \u00b7 ${track.platform || $("platform").value}`;
+  $("selectedPlatform").textContent = `${platformLabel(track.platform)} · ${track.platform || $("platform").value}`;
   $("title").textContent = track.title || track.id || text.unknownTrack;
   $("artist").textContent = track.artist ? `${text.artist}: ${track.artist}` : "";
   $("album").textContent = track.album ? `${text.album}: ${track.album}` : "";
   renderLinkedIds(track);
   $("downloadInfoBtn").disabled = !track.id;
   resetDownload();
-  setStatus(`\u5df2\u9009\u62e9\uff1a${track.title || track.id}\u3002`);
+  setStatus(`已选择：${track.title || track.id}。`);
   await loadTab("song");
 }
 
 async function loadTab(tab) {
   state.tab = tab;
-  document.querySelectorAll(".tab").forEach((button) => {
+  qsa(".tab").forEach((button) => {
     button.classList.toggle("active", button.dataset.tab === tab);
   });
   if (!state.selected || !state.selected.id) {
@@ -230,19 +267,20 @@ async function loadTab(tab) {
   }
   const id = encodeURIComponent(idValue);
   const routes = {
-    song: `/api/song/${platform}/${id}`,
-    lyric: `/api/song/${platform}/${id}/lyric`,
-    artist: `/api/artist/${platform}/${id}`,
-    album: `/api/album/${platform}/${id}`,
-    playlist: `/api/playlist/${platform}/${id}`
+    song: `/api/song/${encodeURIComponent(platform)}/${id}`,
+    lyric: `/api/song/${encodeURIComponent(platform)}/${id}/lyric`,
+    artist: `/api/artist/${encodeURIComponent(platform)}/${id}`,
+    album: `/api/album/${encodeURIComponent(platform)}/${id}`,
+    playlist: `/api/playlist/${encodeURIComponent(platform)}/${id}`
   };
-  setStatus(`\u6b63\u5728\u52a0\u8f7d${tabLabel(tab)}...`);
+  setStatus(`正在加载${tabLabel(tab)}...`);
   setRaw(text.loading);
   try {
     const result = await api(routes[tab]);
     renderDetail(tab, result);
     renderRaw(result);
-    setStatus(`${tabLabel(tab)}\u5df2\u52a0\u8f7d\u3002`);
+    setStatus(`${tabLabel(tab)}已加载。`);
+    setBackendState("API 已连接", "ok");
   } catch (error) {
     showError(error);
   }
@@ -256,19 +294,21 @@ async function loadDownloadInfo() {
   const id = encodeURIComponent(state.selected.id);
   const quality = $("quality").value;
   resetDownload();
-  setStatus(`\u6b63\u5728\u83b7\u53d6 ${qualityLabel(quality)} \u4e0b\u8f7d\u94fe\u63a5...`);
+  setStatus(`正在获取 ${qualityLabel(quality)} 下载链接...`);
   setRaw(text.downloadFetching);
   try {
-    const info = await api(`/api/song/${platform}/${id}/download-info?quality=${encodeURIComponent(quality)}`);
+    const info = await api(`/api/song/${encodeURIComponent(platform)}/${id}/download-info?quality=${encodeURIComponent(quality)}`);
     renderDetail("download", info);
     renderRaw(info);
     if (info.url) {
-      $("downloadBtn").href = `/api/song/${platform}/${id}/download?quality=${encodeURIComponent(quality)}`;
+      $("downloadBtn").href = `/api/song/${encodeURIComponent(platform)}/${id}/download?quality=${encodeURIComponent(quality)}`;
       $("downloadBtn").classList.remove("disabled");
       $("downloadBtn").hidden = false;
       setStatus(text.downloadReady);
+      setBackendState("链接已就绪", "ok");
     } else {
       setStatus(text.downloadUnavailable, "warn");
+      setBackendState("无下载地址", "warn");
     }
   } catch (error) {
     showError(error);
@@ -359,7 +399,7 @@ function chip(label, value) {
 }
 
 function resetSelection() {
-  $("cover").src = "";
+  $("cover").removeAttribute("src");
   updateCoverVisibility();
   $("selectedPlatform").textContent = text.unselected;
   $("title").textContent = text.chooseTrack;
@@ -368,13 +408,13 @@ function resetSelection() {
   $("linkedIds").innerHTML = "";
   $("downloadInfoBtn").disabled = true;
   resetDownload();
-  $("detailView").textContent = text.detailEmpty;
+  $("detailView").innerHTML = `<div class="empty-detail"><p>${text.detailEmpty}</p></div>`;
   setRawCollapsed(text.rawEmpty, text.rawEmptySummary);
 }
 
 function updateCoverVisibility() {
   const hasCover = Boolean($("cover").getAttribute("src"));
-  $("cover").style.opacity = hasCover ? "1" : "0";
+  $("cover").classList.toggle("has-cover", hasCover);
 }
 
 function resetDownload() {
@@ -430,47 +470,56 @@ function pickNested(object, parents, keys) {
 
 function platformLabel(id) {
   return {
-    netease: "\u7f51\u6613\u4e91\u97f3\u4e50",
-    qq: "QQ\u97f3\u4e50",
-    qqmusic: "QQ\u97f3\u4e50",
-    tencent: "QQ\u97f3\u4e50"
-  }[id] || id || "\u672a\u77e5\u5e73\u53f0";
+    netease: "网易云音乐",
+    qq: "QQ 音乐",
+    qqmusic: "QQ 音乐",
+    tencent: "QQ 音乐"
+  }[id] || id || "未知平台";
 }
 
 function tabLabel(tab) {
   return {
-    song: "\u6b4c\u66f2\u8be6\u60c5",
-    lyric: "\u6b4c\u8bcd",
-    artist: "\u6b4c\u624b\u8be6\u60c5",
-    album: "\u4e13\u8f91\u8be6\u60c5",
-    playlist: "\u6b4c\u5355\u8be6\u60c5",
-    download: "\u4e0b\u8f7d\u4fe1\u606f"
+    song: "歌曲详情",
+    lyric: "歌词",
+    artist: "歌手详情",
+    album: "专辑详情",
+    playlist: "歌单详情",
+    download: "下载信息"
   }[tab] || tab;
 }
 
 function qualityLabel(value) {
   return {
-    "MP3_128": "\u6807\u51c6 128k",
-    "MP3_320": "\u9ad8\u54c1\u8d28 320k",
-    "FLAC": "\u65e0\u635f FLAC",
-    "MASTER": "\u6700\u4f73\u53ef\u7528"
+    MP3_128: "标准 128k",
+    MP3_320: "高品质 320k",
+    FLAC: "无损 FLAC",
+    MASTER: "最佳可用"
   }[String(value)] || normalizeText(value);
 }
 
-$("searchForm").addEventListener("submit", search);
-$("downloadInfoBtn").addEventListener("click", loadDownloadInfo);
-$("quality").addEventListener("change", resetDownload);
-$("platform").addEventListener("change", () => setPlatform($("platform").value));
-document.querySelectorAll(".tab").forEach((button) => {
-  button.addEventListener("click", () => loadTab(button.dataset.tab));
-});
-
-loadPlatforms()
-  .then(() => {
-    updateCoverVisibility();
-    setStatus(text.ready);
-  })
-  .catch((error) => {
-    $("platformChoices").textContent = text.loadPlatformsFailed;
-    showError(error);
+function bindEvents() {
+  $("searchForm").addEventListener("submit", search);
+  $("downloadInfoBtn").addEventListener("click", loadDownloadInfo);
+  $("quality").addEventListener("change", resetDownload);
+  $("platform").addEventListener("change", () => setPlatform($("platform").value));
+  qsa(".tab").forEach((button) => {
+    button.addEventListener("click", () => loadTab(button.dataset.tab));
   });
+}
+
+function init() {
+  bindEvents();
+  updateCoverVisibility();
+  setRawCollapsed(text.rawEmpty, text.rawEmptySummary);
+  loadPlatforms()
+    .then(() => {
+      setStatus(text.ready);
+    })
+    .catch((error) => {
+      $("platformChoices").textContent = text.loadPlatformsFailed;
+      setBackendState("API 未连接", "error");
+      showError(error);
+    });
+}
+
+window.addEventListener("DOMContentLoaded", init);

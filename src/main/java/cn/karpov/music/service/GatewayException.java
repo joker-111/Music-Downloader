@@ -4,6 +4,11 @@ import cn.karpov.music.model.MusicModels.GatewayAttempt;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 所有网关候选路径都失败时抛出的业务异常。
+ *
+ * <p>attempts 会记录每次尝试的 URL 和失败原因，控制器会把它返回给前端调试面板。</p>
+ */
 public class GatewayException extends RuntimeException {
     private final String operation;
     private final Map<String, String> params;

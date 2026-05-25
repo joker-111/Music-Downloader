@@ -17,6 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
+/**
+ * Karpov Gateway 访问模块。
+ *
+ * <p>它负责展开候选路径、尝试平台别名、解析响应，并过滤登录页或空数据等不可用结果。</p>
+ */
 @Service
 public class GatewayClient {
     private final GatewayProperties properties;
@@ -29,6 +34,9 @@ public class GatewayClient {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 按配置顺序尝试网关候选路径，直到拿到一个非空且可用的 JSON 响应。
+     */
     public GatewayPayload fetch(String operation, Map<String, String> params) {
         List<GatewayAttempt> attempts = new ArrayList<>();
         List<String> platformVariants = platformVariants(params.get("platform"));
@@ -76,6 +84,9 @@ public class GatewayClient {
         };
     }
 
+    /**
+     * 将非 JSON 文本包装成 value，前端仍可在调试面板看到完整返回内容。
+     */
     private JsonNode parseBody(String body) throws Exception {
         if (body == null || body.isBlank()) {
             return null;
@@ -107,6 +118,9 @@ public class GatewayClient {
         return objectMapper.createArrayNode();
     }
 
+    /**
+     * 网关有时会返回登录页、空 data 或业务错误码；这些响应不能当作可用音乐数据。
+     */
     private boolean isEmptyGatewayResult(JsonNode json) {
         if (json == null || json.isNull()) {
             return true;
@@ -205,6 +219,9 @@ public class GatewayClient {
         return null;
     }
 
+    /**
+     * 只替换模板中的已知参数，并在替换前做 URL 编码，避免中文关键词破坏查询串。
+     */
     private String expand(String template, Map<String, String> params) {
         String value = template;
         for (Map.Entry<String, String> entry : params.entrySet()) {

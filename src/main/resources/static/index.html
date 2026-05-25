@@ -3,82 +3,97 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6ddd8">
   <title>音乐下载器</title>
   <link rel="stylesheet" href="/styles.css">
+  <script defer src="/app.js"></script>
 </head>
 <body>
-  <div class="background-animation"></div>
-  <main class="app-shell">
+  <main id="top" class="app-shell">
     <header class="topbar">
-      <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 18V5l12-2v13"></path>
-            <circle cx="6" cy="18" r="3"></circle>
-            <circle cx="18" cy="16" r="3"></circle>
+      <a class="brand" href="#top" data-cursor="home" aria-label="音乐下载器首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M18 32V15l15-3v16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="15" cy="32" r="4" fill="currentColor"></circle>
+            <circle cx="30" cy="28" r="4" fill="currentColor"></circle>
           </svg>
-        </div>
-        <div class="brand-text">
+        </span>
+        <span class="brand-text">
           <strong>音乐下载器</strong>
-          <span>统一接入 gateway.karpov.cn</span>
-        </div>
+          <small>搜索 / 解析 / 代理下载</small>
+        </span>
+      </a>
+      <nav class="top-links" aria-label="页面导航">
+        <a href="#results" data-cursor="arrow">结果</a>
+        <a href="#details" data-cursor="arrow">详情</a>
+        <a href="#debug" data-cursor="arrow">调试</a>
+      </nav>
+    </header>
+
+    <section class="hero" aria-label="音乐搜索">
+      <div class="hero-copy">
+        <p class="kicker">Music Gateway Console</p>
+        <h1>
+          <span class="title-serif">找到一首歌</span>
+          <span class="title-sans">直接下载</span>
+        </h1>
+        <p class="hero-note">保留原有后端接口，只重做前端体验。输入关键词，选择平台，查看详情和歌词后下载。</p>
       </div>
-      <form id="searchForm" class="searchbar">
-        <div class="search-wrapper">
-          <select id="platform" aria-label="音乐平台"></select>
-          <div id="platformChoices" class="platform-choices" aria-label="音乐平台"></div>
-          <input id="keyword" name="keyword" placeholder="搜索歌曲、歌手、专辑或歌单" autocomplete="off" required>
-          <button type="submit" class="search-btn">
+
+      <form id="searchForm" class="search-panel" autocomplete="off">
+        <div class="search-panel-head">
+          <div>
+            <span class="eyebrow">Search</span>
+            <strong>选择平台并搜索</strong>
+          </div>
+          <span class="live-pill" id="backendState">API 待连接</span>
+        </div>
+
+        <select id="platform" aria-label="音乐平台"></select>
+        <div id="platformChoices" class="platform-choices" aria-label="音乐平台"></div>
+
+        <label class="search-field" for="keyword">
+          <span>关键词</span>
+          <input id="keyword" name="keyword" placeholder="搜索歌曲、歌手、专辑或歌单" required>
+          <button type="submit" class="search-btn" data-cursor="search" aria-label="搜索">
+            <span>搜索</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.35-4.35"></path>
             </svg>
           </button>
-        </div>
+        </label>
       </form>
-    </header>
+    </section>
 
-    <section class="content-grid">
-      <aside class="sidebar" aria-label="搜索结果">
+    <section class="workspace" aria-label="音乐下载工作区">
+      <aside id="results" class="results-panel" aria-label="搜索结果">
         <div class="panel-head">
-          <div class="panel-title">
-            <div class="panel-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="8" y1="6" x2="21" y2="6"></line>
-                <line x1="8" y1="12" x2="21" y2="12"></line>
-                <line x1="8" y1="18" x2="21" y2="18"></line>
-                <path d="M3 6h.01"></path>
-                <path d="M3 12h.01"></path>
-                <path d="M3 18h.01"></path>
-              </svg>
-            </div>
-            <div>
-              <span class="eyebrow">搜索结果</span>
-              <strong>候选歌曲</strong>
-            </div>
+          <div>
+            <span class="eyebrow">Results</span>
+            <strong>候选歌曲</strong>
           </div>
-          <span id="resultCount" class="badge">0</span>
+          <span id="resultCount" class="count-badge">0</span>
         </div>
         <div id="resultList" class="result-list empty">
           <div class="empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
+            <span class="empty-icon" aria-hidden="true"></span>
             <p>输入关键词开始搜索</p>
           </div>
         </div>
       </aside>
 
-      <section class="main-panel" aria-label="歌曲详情">
+      <section id="details" class="detail-panel" aria-label="歌曲详情">
         <section class="summary">
           <div class="cover-wrapper">
-            <img id="cover" alt="" src="">
-            <div class="cover-placeholder">
+            <img id="cover" alt="">
+            <div class="cover-placeholder" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                <path d="M21 15l-5-5L5 21"></path>
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
               </svg>
             </div>
           </div>
@@ -86,7 +101,7 @@
             <div class="platform-tag">
               <span id="selectedPlatform">尚未选择歌曲</span>
             </div>
-            <h1 id="title">请选择一首歌曲</h1>
+            <h2 id="title">请选择一首歌曲</h2>
             <div class="meta-info">
               <p id="artist" class="meta"></p>
               <p id="album" class="meta"></p>
@@ -96,108 +111,53 @@
         </section>
 
         <section class="download-panel" aria-label="下载操作">
-          <div class="download-header">
-            <div class="download-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
-            </div>
-            <div class="download-copy">
-              <span class="eyebrow">下载</span>
-              <strong>选择音质后获取下载链接</strong>
-            </div>
+          <div class="download-copy">
+            <span class="eyebrow">Download</span>
+            <strong>选择音质后获取下载链接</strong>
           </div>
           <div class="toolbar-row">
-            <div class="quality-selector">
-              <select id="quality" aria-label="音质">
-                <option value="MP3_128">标准 128k</option>
-                <option value="MP3_320" selected>高品质 320k</option>
-                <option value="FLAC">无损 FLAC</option>
-                <option value="MASTER">最佳可用</option>
-              </select>
-            </div>
-            <button id="downloadInfoBtn" class="action-btn" disabled>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
+            <select id="quality" aria-label="音质">
+              <option value="MP3_128">标准 128k</option>
+              <option value="MP3_320" selected>高品质 320k</option>
+              <option value="FLAC">无损 FLAC</option>
+              <option value="MASTER">最佳可用</option>
+            </select>
+            <button id="downloadInfoBtn" class="action-btn" type="button" disabled data-cursor="link">
               获取链接
             </button>
-            <a id="downloadBtn" class="download-btn disabled" href="#" hidden>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-              </svg>
+            <a id="downloadBtn" class="download-btn disabled" href="#" hidden data-cursor="download">
               下载
             </a>
           </div>
         </section>
 
-        <div id="status" class="status">
-          <div class="status-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-          </div>
-          <span>就绪。</span>
+        <div id="status" class="status" role="status" aria-live="polite">
+          <span class="status-light" aria-hidden="true"></span>
+          <span id="statusText">就绪。</span>
         </div>
 
-        <nav class="tabs" aria-label="详情">
-          <button class="tab active" data-tab="song">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18V5l12-2v13"></path>
-              <circle cx="6" cy="18" r="3"></circle>
-              <circle cx="18" cy="16" r="3"></circle>
-            </svg>
-            歌曲详情
-          </button>
-          <button class="tab" data-tab="lyric">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 18V5l12-2v13"></path>
-              <circle cx="6" cy="18" r="3"></circle>
-              <circle cx="18" cy="16" r="3"></circle>
-            </svg>
-            歌词
-          </button>
+        <nav class="tabs" aria-label="详情切换">
+          <button class="tab active" type="button" data-tab="song" data-cursor="tab">歌曲详情</button>
+          <button class="tab" type="button" data-tab="lyric" data-cursor="tab">歌词</button>
         </nav>
 
         <section class="details-grid">
-          <article class="card">
+          <article class="info-card">
             <div class="card-head">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <line x1="3" y1="9" x2="21" y2="9"></line>
-                  <line x1="9" y1="21" x2="9" y2="9"></line>
-                </svg>
-              </div>
-              <span>结构化详情</span>
+              <span class="eyebrow">Structured</span>
+              <strong>结构化详情</strong>
             </div>
             <div id="detailView" class="detail-view">
               <div class="empty-detail">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
                 <p>选择搜索结果后自动展示</p>
               </div>
             </div>
           </article>
-          <article class="card raw-card">
+
+          <article id="debug" class="info-card raw-card">
             <div class="card-head">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="16 18 22 12 16 6"></polyline>
-                  <polyline points="8 6 2 12 8 18"></polyline>
-                </svg>
-              </div>
-              <span>原始响应</span>
+              <span class="eyebrow">Raw</span>
+              <strong>原始响应</strong>
             </div>
             <details id="rawDisclosure" class="raw-disclosure">
               <summary>
@@ -211,7 +171,5 @@
       </section>
     </section>
   </main>
-
-  <script src="/app.js"></script>
 </body>
 </html>

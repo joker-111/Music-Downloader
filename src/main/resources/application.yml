@@ -5,6 +5,7 @@ spring:
   application:
     name: music-downloader
 
+# Gateway 模块配置：Java 代码只认 operation，具体 REST 路径在这里维护。
 music:
   gateway:
     base-url: https://gateway.karpov.cn/api/proxy

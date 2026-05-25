@@ -1,3 +1,8 @@
+$Utf8NoBom = [System.Text.UTF8Encoding]::new($false)
+[Console]::InputEncoding = $Utf8NoBom
+[Console]::OutputEncoding = $Utf8NoBom
+$OutputEncoding = $Utf8NoBom
+
 $LocalJava = Join-Path $PSScriptRoot ".tools\jdk-17.0.19+10"
 $LocalMaven = Join-Path $PSScriptRoot ".tools\apache-maven-3.9.16"
 $LocalEnvFile = Join-Path $PSScriptRoot ".env"
@@ -38,16 +43,28 @@ function Use-UserEnvironmentVariable {
     }
 }
 
+function Test-JavaHome {
+    param([string]$Path)
+
+    return -not [string]::IsNullOrWhiteSpace($Path) -and (Test-Path (Join-Path $Path "bin\java.exe"))
+}
+
+function Test-MavenHome {
+    param([string]$Path)
+
+    return -not [string]::IsNullOrWhiteSpace($Path) -and (Test-Path (Join-Path $Path "bin\mvn.cmd"))
+}
+
 Import-LocalEnvFile $LocalEnvFile
 Use-UserEnvironmentVariable "JAVA_HOME"
 Use-UserEnvironmentVariable "MAVEN_HOME"
 Use-UserEnvironmentVariable "MUSIC_GATEWAY_API_KEY"
 
-if (-not $env:JAVA_HOME -and (Test-Path $LocalJava)) {
+if (-not (Test-JavaHome $env:JAVA_HOME) -and (Test-Path $LocalJava)) {
     $env:JAVA_HOME = $LocalJava
 }
 
-if (-not $env:MAVEN_HOME -and (Test-Path $LocalMaven)) {
+if (-not (Test-MavenHome $env:MAVEN_HOME) -and (Test-Path $LocalMaven)) {
     $env:MAVEN_HOME = $LocalMaven
 }
 
@@ -60,6 +77,36 @@ if ($env:MAVEN_HOME) {
 }
 
 $AppJar = Join-Path $PSScriptRoot "target\music-downloader-0.0.1-SNAPSHOT.jar"
+$ServerPort = 8080
+
+function Test-LocalPortOpen {
+    param([int]$Port)
+
+    $Client = [System.Net.Sockets.TcpClient]::new()
+    try {
+        $Connect = $Client.BeginConnect("127.0.0.1", $Port, $null, $null)
+        if (-not $Connect.AsyncWaitHandle.WaitOne(250)) {
+            return $false
+        }
+        $Client.EndConnect($Connect)
+        return $true
+    } catch {
+        return $false
+    } finally {
+        $Client.Close()
+    }
+}
+
+function Find-FreePort {
+    param([int]$StartPort)
+
+    for ($Port = $StartPort; $Port -le ($StartPort + 10); $Port++) {
+        if (-not (Test-LocalPortOpen $Port)) {
+            return $Port
+        }
+    }
+    return $StartPort
+}
 
 try {
     Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue |
@@ -73,13 +120,20 @@ try {
     Write-Warning "Could not check port 8080 before startup: $($_.Exception.Message)"
 }
 
+if (Test-LocalPortOpen 8080) {
+    $ServerPort = Find-FreePort 8081
+    Write-Warning "Port 8080 is still in use. Starting on http://localhost:$ServerPort instead."
+}
+
 if (-not $env:MUSIC_GATEWAY_API_KEY) {
     Write-Warning "MUSIC_GATEWAY_API_KEY is not configured. Gateway requests may return the login page."
 }
 
-mvn -DskipTests package
+mvn clean package -DskipTests
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-java -jar $AppJar
+Write-Host "Starting music downloader on http://localhost:$ServerPort"
+java -jar $AppJar "--server.port=$ServerPort"
+exit $LASTEXITCODE

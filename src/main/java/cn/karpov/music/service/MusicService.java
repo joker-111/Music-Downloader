@@ -17,6 +17,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
+/**
+ * 音乐业务编排模块。
+ *
+ * <p>这里把不同平台和不同网关返回格式收敛成前端稳定使用的 DTO。</p>
+ */
 @Service
 public class MusicService {
     private static final List<Platform> PLATFORMS = List.of(
@@ -49,6 +54,9 @@ public class MusicService {
         return PLATFORMS;
     }
 
+    /**
+     * 搜索结果来自不同平台时字段形态差异很大，因此先保留 raw，再提取通用摘要字段。
+     */
     public SearchResult search(String platform, String keyword, int page, int limit) {
         String normalizedPlatform = normalizePlatform(platform);
         GatewayPayload payload = gatewayClient.fetch("search", Map.of(
@@ -60,17 +68,23 @@ public class MusicService {
         return new SearchResult(keyword, normalizedPlatform, page, limit, extractTracks(payload.body(), normalizedPlatform), payload.body());
     }
 
+    /**
+     * 详情接口共用同一套提取逻辑，type 决定展示摘要时优先关注的字段。
+     */
     public DetailResult detail(String type, String platform, String id) {
         String normalizedPlatform = normalizePlatform(platform);
         GatewayPayload payload = gatewayClient.fetch(type, Map.of("platform", normalizedPlatform, "id", id));
         JsonNode body = payload.body();
         String title = firstText(body, "name", "title", "songName", "songname", "albumName");
         String subtitle = buildSubtitle(type, body);
-        String cover = firstText(body, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl", "avatar", "avatarUrl", "avatar_url", "picurl");
+        String cover = firstImageUrl(body, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl", "avatar", "avatarUrl", "avatar_url", "picurl");
         Map<String, String> fields = collectFields(body, type);
         return new DetailResult(type, normalizedPlatform, id, title, subtitle, cover, fields, body);
     }
 
+    /**
+     * 下载信息只解析元数据和真实 URL；文件字节由控制器的下载代理再去读取。
+     */
     public DownloadInfo downloadInfo(String platform, String id, String quality) {
         String normalizedPlatform = normalizePlatform(platform);
         GatewayPayload payload = gatewayClient.fetch("download", Map.of(
@@ -131,9 +145,9 @@ public class MusicService {
         String title = firstText(item, "name", "title", "songName", "songname", "trackName");
         String artist = firstText(item, "artist", "artists", "singer", "author", "ar", "artistName");
         String album = firstText(item, "album", "albumName", "albumname", "al", "albumTitle");
-        String cover = firstText(item, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl", "img");
+        String cover = firstImageUrl(item, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl", "img", "picurl", "imgUrl");
         if (cover == null || cover.isBlank()) {
-            cover = firstText(item.get("album"), "cover", "coverUrl", "cover_url", "pic", "picUrl");
+            cover = firstImageUrl(item.get("album"), "cover", "coverUrl", "cover_url", "pic", "picUrl", "picurl", "img");
         }
         String duration = firstText(item, "duration", "interval", "time", "dt", "length", "durationSeconds", "duration_seconds");
         String artistId = firstText(item, "artistId", "artist_id", "singerId", "singerid", "authorId", "author_id", "arid");
@@ -145,6 +159,9 @@ public class MusicService {
         return new TrackSummary(id, platform, title, artist, album, cover, duration, artistId, albumId, playlistId, item);
     }
 
+    /**
+     * 从常见列表字段里递归定位歌曲数组，兼容 data/result/songs/list 等网关响应形态。
+     */
     private JsonNode locateList(JsonNode raw) {
         if (raw == null || raw.isNull()) {
             return null;
@@ -168,6 +185,9 @@ public class MusicService {
         return null;
     }
 
+    /**
+     * 平台别名归一化，前端、文档和用户输入可以使用更自然的名称。
+     */
     private String normalizePlatform(String platform) {
         if (platform == null) {
             return "netease";
@@ -200,7 +220,7 @@ public class MusicService {
         addField(fields, "title", firstText(body, "name", "title", "songName", "songname"));
         addField(fields, "artist", firstText(body, "artist", "artists", "singer", "author", "ar"));
         addField(fields, "album", firstText(body, "album", "albumName", "albumname", "al"));
-        addField(fields, "cover", firstText(body, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl"));
+        addField(fields, "cover", firstImageUrl(body, "pic", "cover", "coverUrl", "cover_url", "image", "albumPic", "picUrl", "picurl", "img"));
         addField(fields, "duration", firstText(body, "duration", "interval", "time", "dt", "length", "durationSeconds", "duration_seconds"));
         addField(fields, "artistId", firstText(body, "artistId", "artist_id", "singerId", "singerid", "authorId", "author_id"));
         addField(fields, "albumId", firstText(body, "albumId", "album_id", "albummid", "albumMid", "albumid"));
@@ -304,6 +324,92 @@ public class MusicService {
         return null;
     }
 
+    /**
+     * 图片字段经常是对象、数组、协议相对地址或裸域名；这里统一转换成浏览器可加载 URL。
+     */
+    private String firstImageUrl(JsonNode node, String... fields) {
+        String value = firstImageText(node, fields);
+        return normalizeImageUrl(value);
+    }
+
+    private String firstImageText(JsonNode node, String... fields) {
+        if (node == null || node.isNull()) {
+            return null;
+        }
+        if (node.isTextual() || node.isNumber()) {
+            return node.asText();
+        }
+        for (String field : fields) {
+            JsonNode value = node.get(field);
+            String extracted = imageScalar(value);
+            if (extracted != null && !extracted.isBlank()) {
+                return extracted;
+            }
+        }
+        if (node.isObject()) {
+            for (String container : List.of("data", "result", "song", "audio", "info", "detail", "album")) {
+                JsonNode child = node.get(container);
+                String nested = firstImageText(child, fields);
+                if (nested != null && !nested.isBlank()) {
+                    return nested;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String imageScalar(JsonNode value) {
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        if (value.isTextual() || value.isNumber() || value.isBoolean()) {
+            return value.asText();
+        }
+        if (value.isArray()) {
+            for (JsonNode item : value) {
+                String text = imageScalar(item);
+                if (text != null && !text.isBlank()) {
+                    return text;
+                }
+            }
+            return null;
+        }
+        if (value.isObject()) {
+            for (String field : List.of("url", "src", "coverUrl", "cover_url", "picUrl", "picurl", "imgUrl", "image", "img", "pic", "avatarUrl", "avatar_url", "cover", "value")) {
+                String nested = imageScalar(value.get(field));
+                if (nested != null && !nested.isBlank()) {
+                    return nested;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String normalizeImageUrl(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        if (trimmed.isBlank()) {
+            return null;
+        }
+        String lower = trimmed.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("//")) {
+            return "https:" + trimmed;
+        }
+        if (lower.startsWith("http://")
+                || lower.startsWith("https://")
+                || lower.startsWith("data:image/")) {
+            return trimmed;
+        }
+        if (!trimmed.contains(" ")
+                && trimmed.contains(".")
+                && (trimmed.contains("/") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".png") || lower.endsWith(".webp"))) {
+            return "https://" + trimmed;
+        }
+        return null;
+    }
+
     private String scalar(JsonNode value) {
         if (value == null || value.isNull()) {
             return null;
@@ -365,6 +471,9 @@ public class MusicService {
         return null;
     }
 
+    /**
+     * 文件名会进入 Content-Disposition，必须剔除 Windows 和浏览器都不喜欢的路径字符。
+     */
     private String filename(String title, String platform, String quality) {
         String cleaned = Arrays.stream(title.split("[\\\\/:*?\"<>|]+"))
                 .map(String::trim)

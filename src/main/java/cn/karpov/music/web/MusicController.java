@@ -29,6 +29,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 本地 HTTP API 模块。
+ *
+ * <p>前端只和这些 /api 路由交互；网关细节和下载代理都封装在后端。</p>
+ */
 @Validated
 @RestController
 @RequestMapping("/api")
@@ -90,6 +95,9 @@ public class MusicController {
         return ApiResponse.ok(musicService.downloadInfo(platform, id, quality));
     }
 
+    /**
+     * 通过后端转发下载字节，避免前端直接暴露或受限于上游临时 URL、跨域和鉴权细节。
+     */
     @GetMapping("/song/{platform}/{id}/download")
     public ResponseEntity<byte[]> download(
             @PathVariable String platform,
@@ -117,6 +125,9 @@ public class MusicController {
                 .body(response.body());
     }
 
+    /**
+     * 网关失败会带上所有候选路径尝试结果，方便前端调试面板定位是路径、凭据还是上游问题。
+     */
     @ExceptionHandler(GatewayException.class)
     public ResponseEntity<ApiResponse<GatewayError>> gatewayError(GatewayException ex) {
         GatewayError error = new GatewayError(ex.getOperation(), ex.getParams(), ex.getAttempts());
