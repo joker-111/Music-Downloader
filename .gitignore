@@ -10,3 +10,5 @@ target/
 *.war
 .tmp-karpov-gateway/
 .env
+frontend/node_modules/
+frontend/dist/

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6ddd8">
+  <title>音乐下载器</title>
+  <script type="module" src="/src/main.js"></script>
+</head>
+<body>
+  <main id="top" class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" data-cursor="home" aria-label="音乐下载器首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M18 32V15l15-3v16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="15" cy="32" r="4" fill="currentColor"></circle>
+            <circle cx="30" cy="28" r="4" fill="currentColor"></circle>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong>音乐下载器</strong>
+          <small>搜索 / 解析 / 代理下载</small>
+        </span>
+      </a>
+      <nav class="top-links" aria-label="页面导航">
+        <a href="#results" data-cursor="arrow">结果</a>
+        <a href="#details" data-cursor="arrow">详情</a>
+        <a href="#debug" data-cursor="arrow">调试</a>
+      </nav>
+    </header>
+
+    <section class="hero" aria-label="音乐搜索">
+      <div class="hero-copy">
+        <p class="kicker">Music Gateway Console</p>
+        <h1>
+          <span class="title-serif">找到一首歌</span>
+          <span class="title-sans">直接下载</span>
+        </h1>
+        <p class="hero-note">保留原有后端接口，只重做前端体验。输入关键词，选择平台，查看详情和歌词后下载。</p>
+      </div>
+
+      <form id="searchForm" class="search-panel" autocomplete="off">
+        <div class="search-panel-head">
+          <div>
+            <span class="eyebrow">Search</span>
+            <strong>选择平台并搜索</strong>
+          </div>
+          <span class="live-pill" id="backendState">API 待连接</span>
+        </div>
+
+        <select id="platform" aria-label="音乐平台"></select>
+        <div id="platformChoices" class="platform-choices" aria-label="音乐平台"></div>
+
+        <label class="search-field" for="keyword">
+          <span>关键词</span>
+          <input id="keyword" name="keyword" placeholder="搜索歌曲、歌手、专辑或歌单" required>
+          <button type="submit" class="search-btn" data-cursor="search" aria-label="搜索">
+            <span>搜索</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </button>
+        </label>
+      </form>
+    </section>
+
+    <section class="workspace" aria-label="音乐下载工作区">
+      <aside id="results" class="results-panel" aria-label="搜索结果">
+        <div class="panel-head">
+          <div>
+            <span class="eyebrow">Results</span>
+            <strong>候选歌曲</strong>
+          </div>
+          <span id="resultCount" class="count-badge">0</span>
+        </div>
+        <div id="resultList" class="result-list empty">
+          <div class="empty-state">
+            <span class="empty-icon" aria-hidden="true"></span>
+            <p>输入关键词开始搜索</p>
+          </div>
+        </div>
+      </aside>
+
+      <section id="details" class="detail-panel" aria-label="歌曲详情">
+        <section class="summary">
+          <div class="cover-wrapper">
+            <img id="cover" alt="">
+            <div class="cover-placeholder" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+              </svg>
+            </div>
+          </div>
+          <div class="summary-copy">
+            <div class="platform-tag">
+              <span id="selectedPlatform">尚未选择歌曲</span>
+            </div>
+            <h2 id="title">请选择一首歌曲</h2>
+            <div class="meta-info">
+              <p id="artist" class="meta"></p>
+              <p id="album" class="meta"></p>
+            </div>
+            <div id="linkedIds" class="linked-ids"></div>
+          </div>
+        </section>
+
+        <section class="download-panel" aria-label="下载操作">
+          <div class="download-copy">
+            <span class="eyebrow">Download</span>
+            <strong>选择音质后获取下载链接</strong>
+          </div>
+          <div class="toolbar-row">
+            <select id="quality" aria-label="音质">
+              <option value="MP3_128">标准 128k</option>
+              <option value="MP3_320" selected>高品质 320k</option>
+              <option value="FLAC">无损 FLAC</option>
+              <option value="MASTER">最佳可用</option>
+            </select>
+            <button id="downloadInfoBtn" class="action-btn" type="button" disabled data-cursor="link">
+              获取链接
+            </button>
+            <a id="downloadBtn" class="download-btn disabled" href="#" hidden data-cursor="download">
+              下载
+            </a>
+          </div>
+        </section>
+
+        <div id="status" class="status" role="status" aria-live="polite">
+          <span class="status-light" aria-hidden="true"></span>
+          <span id="statusText">就绪。</span>
+        </div>
+
+        <nav class="tabs" aria-label="详情切换">
+          <button class="tab active" type="button" data-tab="song" data-cursor="tab">歌曲详情</button>
+          <button class="tab" type="button" data-tab="lyric" data-cursor="tab">歌词</button>
+        </nav>
+
+        <section class="details-grid">
+          <article class="info-card">
+            <div class="card-head">
+              <span class="eyebrow">Structured</span>
+              <strong>结构化详情</strong>
+            </div>
+            <div id="detailView" class="detail-view">
+              <div class="empty-detail">
+                <p>选择搜索结果后自动展示</p>
+              </div>
+            </div>
+          </article>
+
+          <article id="debug" class="info-card raw-card">
+            <div class="card-head">
+              <span class="eyebrow">Raw</span>
+              <strong>原始响应</strong>
+            </div>
+            <details id="rawDisclosure" class="raw-disclosure">
+              <summary>
+                <span>调试响应</span>
+                <small id="rawSummary">选择搜索结果后自动加载</small>
+              </summary>
+              <pre id="content" class="content">选择搜索结果后自动加载</pre>
+            </details>
+          </article>
+        </section>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
