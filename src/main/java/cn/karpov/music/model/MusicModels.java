@@ -59,6 +59,9 @@ public final class MusicModels {
             String quality,
             String title,
             String url,
+            String format,
+            String extension,
+            String mimeType,
             String filename,
             JsonNode raw
     ) {

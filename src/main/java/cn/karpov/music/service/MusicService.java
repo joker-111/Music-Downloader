@@ -44,6 +44,30 @@ public class MusicService {
             Map.entry("tencentmusic", "qqmusic")
     );
 
+    private static final Map<String, AudioFormat> AUDIO_FORMATS = Map.ofEntries(
+            Map.entry("mp3", new AudioFormat("MP3", "mp3", "audio/mpeg")),
+            Map.entry("mpeg", new AudioFormat("MP3", "mp3", "audio/mpeg")),
+            Map.entry("audio/mpeg", new AudioFormat("MP3", "mp3", "audio/mpeg")),
+            Map.entry("flac", new AudioFormat("FLAC", "flac", "audio/flac")),
+            Map.entry("x-flac", new AudioFormat("FLAC", "flac", "audio/flac")),
+            Map.entry("audio/flac", new AudioFormat("FLAC", "flac", "audio/flac")),
+            Map.entry("audio/x-flac", new AudioFormat("FLAC", "flac", "audio/flac")),
+            Map.entry("m4a", new AudioFormat("M4A", "m4a", "audio/mp4")),
+            Map.entry("mp4", new AudioFormat("M4A", "m4a", "audio/mp4")),
+            Map.entry("audio/mp4", new AudioFormat("M4A", "m4a", "audio/mp4")),
+            Map.entry("aac", new AudioFormat("AAC", "aac", "audio/aac")),
+            Map.entry("audio/aac", new AudioFormat("AAC", "aac", "audio/aac")),
+            Map.entry("wav", new AudioFormat("WAV", "wav", "audio/wav")),
+            Map.entry("wave", new AudioFormat("WAV", "wav", "audio/wav")),
+            Map.entry("audio/wav", new AudioFormat("WAV", "wav", "audio/wav")),
+            Map.entry("audio/x-wav", new AudioFormat("WAV", "wav", "audio/wav")),
+            Map.entry("ogg", new AudioFormat("OGG", "ogg", "audio/ogg")),
+            Map.entry("oga", new AudioFormat("OGG", "ogg", "audio/ogg")),
+            Map.entry("audio/ogg", new AudioFormat("OGG", "ogg", "audio/ogg"))
+    );
+
+    private static final AudioFormat DEFAULT_AUDIO_FORMAT = AUDIO_FORMATS.get("mp3");
+
     private final GatewayClient gatewayClient;
 
     public MusicService(GatewayClient gatewayClient) {
@@ -86,6 +110,10 @@ public class MusicService {
      * 下载信息只解析元数据和真实 URL；文件字节由控制器的下载代理再去读取。
      */
     public DownloadInfo downloadInfo(String platform, String id, String quality) {
+        return downloadInfo(platform, id, quality, null);
+    }
+
+    public DownloadInfo downloadInfo(String platform, String id, String quality, String titleHint) {
         String normalizedPlatform = normalizePlatform(platform);
         GatewayPayload payload = gatewayClient.fetch("download", Map.of(
                 "platform", normalizedPlatform,
@@ -97,6 +125,9 @@ public class MusicService {
         if (title == null || title.isBlank()) {
             title = firstText(body.get("song"), "name", "title", "songName", "songname", "filename");
         }
+        if ((title == null || title.isBlank()) && titleHint != null && !titleHint.isBlank()) {
+            title = titleHint;
+        }
         String url = findUrl(body);
         if (url == null && body != null && body.isTextual()) {
             String text = body.asText();
@@ -107,7 +138,19 @@ public class MusicService {
         if (title == null || title.isBlank()) {
             title = id;
         }
-        return new DownloadInfo(id, normalizedPlatform, quality, title, url, filename(title, normalizedPlatform, quality), body);
+        AudioFormat format = inferAudioFormat(body, url, quality);
+        return new DownloadInfo(
+                id,
+                normalizedPlatform,
+                quality,
+                title,
+                url,
+                format.display(),
+                format.extension(),
+                format.mimeType(),
+                filename(title, normalizedPlatform, quality, format.extension()),
+                body
+        );
     }
 
     public LyricResult lyric(String platform, String id) {
@@ -279,6 +322,12 @@ public class MusicService {
                 || lower.equals("trans")
                 || lower.equals("quality")
                 || lower.equals("format")
+                || lower.equals("filetype")
+                || lower.equals("file_type")
+                || lower.equals("ext")
+                || lower.equals("extension")
+                || lower.equals("mimetype")
+                || lower.equals("mime_type")
                 || lower.equals("available")
                 || lower.contains("desc")
                 || lower.contains("count")
@@ -474,7 +523,66 @@ public class MusicService {
     /**
      * 文件名会进入 Content-Disposition，必须剔除 Windows 和浏览器都不喜欢的路径字符。
      */
-    private String filename(String title, String platform, String quality) {
+    private AudioFormat inferAudioFormat(JsonNode body, String url, String quality) {
+        AudioFormat gatewayFormat = audioFormatFromSignal(firstText(body, "format", "type", "fileType", "file_type", "ext", "extension", "mimeType", "mime_type"));
+        if (gatewayFormat != null) {
+            return gatewayFormat;
+        }
+        AudioFormat urlFormat = audioFormatFromSignal(extensionFromUrl(url));
+        if (urlFormat != null) {
+            return urlFormat;
+        }
+        AudioFormat qualityFormat = audioFormatFromSignal(quality);
+        return qualityFormat == null ? DEFAULT_AUDIO_FORMAT : qualityFormat;
+    }
+
+    private AudioFormat audioFormatFromSignal(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String normalized = value.trim().toLowerCase(Locale.ROOT);
+        int semicolon = normalized.indexOf(';');
+        if (semicolon >= 0) {
+            normalized = normalized.substring(0, semicolon).trim();
+        }
+        if (normalized.startsWith(".")) {
+            normalized = normalized.substring(1);
+        }
+        AudioFormat exact = AUDIO_FORMATS.get(normalized);
+        if (exact != null) {
+            return exact;
+        }
+        for (Map.Entry<String, AudioFormat> entry : AUDIO_FORMATS.entrySet()) {
+            if (normalized.contains(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String extensionFromUrl(String url) {
+        if (url == null || url.isBlank()) {
+            return null;
+        }
+        String normalized = url.trim();
+        int query = normalized.indexOf('?');
+        if (query >= 0) {
+            normalized = normalized.substring(0, query);
+        }
+        int fragment = normalized.indexOf('#');
+        if (fragment >= 0) {
+            normalized = normalized.substring(0, fragment);
+        }
+        int slash = normalized.lastIndexOf('/');
+        String filename = slash >= 0 ? normalized.substring(slash + 1) : normalized;
+        int dot = filename.lastIndexOf('.');
+        if (dot < 0 || dot == filename.length() - 1) {
+            return null;
+        }
+        return filename.substring(dot + 1);
+    }
+
+    private String filename(String title, String platform, String quality, String extension) {
         String cleaned = Arrays.stream(title.split("[\\\\/:*?\"<>|]+"))
                 .map(String::trim)
                 .filter(part -> !part.isBlank())
@@ -482,6 +590,9 @@ public class MusicService {
         if (cleaned.isBlank()) {
             cleaned = platform;
         }
-        return cleaned + "-" + quality + ".mp3";
+        return cleaned + "-" + quality + "." + extension;
+    }
+
+    private record AudioFormat(String display, String extension, String mimeType) {
     }
 }

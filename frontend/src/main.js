@@ -26,6 +26,7 @@ const text = {
   quality: "音质",
   downloadUrl: "下载地址",
   noDownloadUrl: "未返回下载地址",
+  fileFormat: "文件格式",
   filename: "文件名",
   summary: "摘要",
   cover: "封面",
@@ -295,15 +296,17 @@ async function loadDownloadInfo() {
   const platform = state.selected.platform || $("platform").value;
   const id = encodeURIComponent(state.selected.id);
   const quality = $("quality").value;
+  const title = state.selected.title || "";
+  const titleQuery = title ? `&title=${encodeURIComponent(title)}` : "";
   resetDownload();
   setStatus(`正在获取 ${qualityLabel(quality)} 下载链接...`);
   setRaw(text.downloadFetching);
   try {
-    const info = await api(`/api/song/${encodeURIComponent(platform)}/${id}/download-info?quality=${encodeURIComponent(quality)}`);
+    const info = await api(`/api/song/${encodeURIComponent(platform)}/${id}/download-info?quality=${encodeURIComponent(quality)}${titleQuery}`);
     renderDetail("download", info);
     renderRaw(info);
     if (info.url) {
-      $("downloadBtn").href = `/api/song/${encodeURIComponent(platform)}/${id}/download?quality=${encodeURIComponent(quality)}`;
+      $("downloadBtn").href = `/api/song/${encodeURIComponent(platform)}/${id}/download?quality=${encodeURIComponent(quality)}${titleQuery}`;
       $("downloadBtn").classList.remove("disabled");
       $("downloadBtn").hidden = false;
       setStatus(text.downloadReady);
@@ -332,6 +335,7 @@ function renderDetail(tab, data) {
       [text.title, normalizeText(data.title)],
       [text.platform, platformLabel(data.platform) || data.platform],
       [text.quality, qualityLabel(data.quality)],
+      [text.fileFormat, data.format || qualityLabel(data.quality)],
       [text.downloadUrl, data.url || text.noDownloadUrl],
       [text.filename, data.filename]
     ]);

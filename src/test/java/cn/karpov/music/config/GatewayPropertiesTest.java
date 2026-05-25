@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 
 class GatewayPropertiesTest {
     @Test
-    void defaultsAreUsableWithoutExternalConfiguration() {
+    void defaultsRequireExternalGatewayConfiguration() {
         GatewayProperties properties = new GatewayProperties();
 
-        assertThat(properties.getBaseUrl()).isEqualTo("https://gateway.karpov.cn");
+        assertThat(properties.getBaseUrl()).isEmpty();
         assertThat(properties.getTimeout()).isEqualTo(Duration.ofSeconds(15));
         assertThat(properties.getUserAgent()).contains("MusicDownloader");
         assertThat(properties.candidatesFor("missing")).isEmpty();
@@ -29,5 +29,13 @@ class GatewayPropertiesTest {
         assertThat(properties.candidatesFor("search")).containsExactly("/{platform}/search?q={keyword}");
         assertThat(properties.candidatesFor("download")).containsExactly("/{platform}/songs/{id}/url");
         assertThat(properties.candidatesFor("lyric")).isEmpty();
+    }
+
+    @Test
+    void candidatesForIgnoresBlankEnvironmentPlaceholders() {
+        GatewayProperties properties = new GatewayProperties();
+        properties.setCandidates(Map.of("search", List.of("", " ", "/{platform}/search?q={keyword}")));
+
+        assertThat(properties.candidatesFor("search")).containsExactly("/{platform}/search?q={keyword}");
     }
 }

@@ -19,8 +19,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Map;
-import org.mockito.ArgumentMatchers;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -31,25 +31,83 @@ class MusicControllerTest {
 
     @Test
     void searchClampsPageAndLimitBeforeCallingService() {
-        SearchResult result = new SearchResult("晴天", "netease", 1, 50, List.of(), null);
-        when(musicService.search("netease", "晴天", 1, 50)).thenReturn(result);
+        SearchResult result = new SearchResult("sunny", "netease", 1, 50, List.of(), null);
+        when(musicService.search("netease", "sunny", 1, 50)).thenReturn(result);
 
-        ApiResponse<SearchResult> response = controller.search("netease", "晴天", -7, 200);
+        ApiResponse<SearchResult> response = controller.search("netease", "sunny", -7, 200);
 
         assertThat(response.success()).isTrue();
         assertThat(response.data()).isSameAs(result);
-        verify(musicService).search("netease", "晴天", 1, 50);
+        verify(musicService).search("netease", "sunny", 1, 50);
     }
 
     @Test
     void downloadReturnsNotFoundWhenGatewayHasNoUrl() throws Exception {
-        when(musicService.downloadInfo("netease", "42", "MP3_320"))
-                .thenReturn(new DownloadInfo("42", "netease", "MP3_320", "晴天", null, "晴天.mp3", null));
+        when(musicService.downloadInfo("netease", "42", "MP3_320", null))
+                .thenReturn(new DownloadInfo("42", "netease", "MP3_320", "Sunny", null, "MP3", "mp3", "audio/mpeg", "Sunny.mp3", null));
 
-        ResponseEntity<byte[]> response = controller.download("netease", "42", "MP3_320");
+        ResponseEntity<byte[]> response = controller.download("netease", "42", "MP3_320", null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         verify(httpClient, never()).send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<byte[]>>any());
+    }
+
+    @Test
+    void downloadUsesInferredFilenameAndContentType() throws Exception {
+        HttpResponse<byte[]> upstream = mock(HttpResponse.class);
+        when(musicService.downloadInfo("netease", "42", "FLAC", null))
+                .thenReturn(new DownloadInfo(
+                        "42",
+                        "netease",
+                        "FLAC",
+                        "Lossless",
+                        "https://cdn.example.com/lossless.flac",
+                        "FLAC",
+                        "flac",
+                        "audio/flac",
+                        "Lossless-FLAC.flac",
+                        null
+                ));
+        when(upstream.statusCode()).thenReturn(200);
+        when(upstream.body()).thenReturn(new byte[] {1, 2, 3});
+        when(httpClient.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<byte[]>>any()))
+                .thenReturn(upstream);
+
+        ResponseEntity<byte[]> response = controller.download("netease", "42", "FLAC", null);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getContentType().toString()).isEqualTo("audio/flac");
+        assertThat(response.getHeaders().getFirst("Content-Disposition")).contains("Lossless-FLAC.flac");
+        assertThat(response.getBody()).containsExactly(1, 2, 3);
+    }
+
+    @Test
+    void downloadUsesTitleHintAndUtf8FilenameHeader() throws Exception {
+        HttpResponse<byte[]> upstream = mock(HttpResponse.class);
+        when(musicService.downloadInfo("netease", "42", "MP3_320", "晴天"))
+                .thenReturn(new DownloadInfo(
+                        "42",
+                        "netease",
+                        "MP3_320",
+                        "晴天",
+                        "https://cdn.example.com/opaque",
+                        "MP3",
+                        "mp3",
+                        "audio/mpeg",
+                        "晴天-MP3_320.mp3",
+                        null
+                ));
+        when(upstream.statusCode()).thenReturn(200);
+        when(upstream.body()).thenReturn(new byte[] {4, 5, 6});
+        when(httpClient.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<byte[]>>any()))
+                .thenReturn(upstream);
+
+        ResponseEntity<byte[]> response = controller.download("netease", "42", "MP3_320", "晴天");
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getFirst("Content-Disposition"))
+                .contains("filename*=")
+                .contains("%E6%99%B4%E5%A4%A9-MP3_320.mp3");
     }
 
     @Test

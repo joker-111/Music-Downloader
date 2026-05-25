@@ -39,10 +39,15 @@ public class GatewayClient {
      */
     public GatewayPayload fetch(String operation, Map<String, String> params) {
         List<GatewayAttempt> attempts = new ArrayList<>();
+        String baseUrl = configuredBaseUrl(attempts);
+        List<String> candidates = configuredCandidates(operation, attempts);
+        if (!attempts.isEmpty()) {
+            throw new GatewayException(operation, params, attempts);
+        }
         List<String> platformVariants = platformVariants(params.get("platform"));
-        for (String candidate : properties.candidatesFor(operation)) {
+        for (String candidate : candidates) {
             for (String platformVariant : platformVariants) {
-                String url = properties.getBaseUrl() + expand(candidate, withPlatform(params, platformVariant));
+                String url = baseUrl + expand(candidate, withPlatform(params, platformVariant));
                 try {
                     String body = restClient.get()
                             .uri(URI.create(url))
@@ -99,11 +104,12 @@ public class GatewayClient {
     }
 
     public String candidateUrl(String operation, Map<String, String> params) {
+        String baseUrl = configuredBaseUrl(new ArrayList<>());
         List<String> candidates = properties.candidatesFor(operation);
         if (candidates.isEmpty()) {
             return null;
         }
-        return properties.getBaseUrl() + expand(candidates.get(0), params);
+        return baseUrl + expand(candidates.get(0), params);
     }
 
     public JsonNode emptyObject() {
@@ -116,6 +122,23 @@ public class GatewayClient {
 
     public ArrayNode arrayNode() {
         return objectMapper.createArrayNode();
+    }
+
+    private String configuredBaseUrl(List<GatewayAttempt> attempts) {
+        String baseUrl = properties.getBaseUrl();
+        if (baseUrl == null || baseUrl.isBlank()) {
+            attempts.add(new GatewayAttempt("music.gateway.base-url", false, "Missing gateway base URL. Set MUSIC_GATEWAY_BASE_URL in .env or the process environment."));
+            return "";
+        }
+        return baseUrl.trim().replaceAll("/+$", "");
+    }
+
+    private List<String> configuredCandidates(String operation, List<GatewayAttempt> attempts) {
+        List<String> candidates = properties.candidatesFor(operation);
+        if (candidates.isEmpty()) {
+            attempts.add(new GatewayAttempt("music.gateway.candidates." + operation, false, "Missing gateway candidate paths for operation: " + operation + ". Set the matching MUSIC_GATEWAY_*_PATH value."));
+        }
+        return candidates;
     }
 
     /**

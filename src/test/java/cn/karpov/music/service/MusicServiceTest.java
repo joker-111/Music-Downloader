@@ -65,7 +65,108 @@ class MusicServiceTest {
         assertThat(info.platform()).isEqualTo("qqmusic");
         assertThat(info.title()).isEqualTo("A/B:Song");
         assertThat(info.url()).isEqualTo("https://cdn.example.com/song.mp3");
+        assertThat(info.format()).isEqualTo("MP3");
+        assertThat(info.extension()).isEqualTo("mp3");
+        assertThat(info.mimeType()).isEqualTo("audio/mpeg");
         assertThat(info.filename()).isEqualTo("A B Song-MP3_320.mp3");
+    }
+
+    @Test
+    void downloadInfoUsesTitleHintWhenGatewayOnlyReturnsUrl() throws Exception {
+        JsonNode body = objectMapper.readTree("""
+                {
+                  "data": {
+                    "url": "https://cdn.example.com/opaque-token"
+                  }
+                }
+                """);
+        MusicService service = new MusicService(new StubGatewayClient(objectMapper, body));
+
+        DownloadInfo info = service.downloadInfo("netease", "42", "MP3_320", "晴天/Live");
+
+        assertThat(info.title()).isEqualTo("晴天/Live");
+        assertThat(info.filename()).isEqualTo("晴天 Live-MP3_320.mp3");
+    }
+
+    @Test
+    void flacQualityProducesFlacDownloadMetadata() throws Exception {
+        JsonNode body = objectMapper.readTree("""
+                {
+                  "data": {
+                    "song": {"name": "Lossless Song"},
+                    "urlData": {"url": "https://cdn.example.com/song"}
+                  }
+                }
+                """);
+        MusicService service = new MusicService(new StubGatewayClient(objectMapper, body));
+
+        DownloadInfo info = service.downloadInfo("netease", "42", "FLAC");
+
+        assertThat(info.format()).isEqualTo("FLAC");
+        assertThat(info.extension()).isEqualTo("flac");
+        assertThat(info.mimeType()).isEqualTo("audio/flac");
+        assertThat(info.filename()).isEqualTo("Lossless Song-FLAC.flac");
+    }
+
+    @Test
+    void gatewayFormatTakesPriorityOverUrlAndQuality() throws Exception {
+        JsonNode body = objectMapper.readTree("""
+                {
+                  "data": {
+                    "name": "Source Wins",
+                    "format": "flac",
+                    "url": "https://cdn.example.com/source.mp3"
+                  }
+                }
+                """);
+        MusicService service = new MusicService(new StubGatewayClient(objectMapper, body));
+
+        DownloadInfo info = service.downloadInfo("netease", "42", "MP3_320");
+
+        assertThat(info.format()).isEqualTo("FLAC");
+        assertThat(info.extension()).isEqualTo("flac");
+        assertThat(info.filename()).isEqualTo("Source Wins-MP3_320.flac");
+    }
+
+    @Test
+    void urlExtensionTakesPriorityOverQualityFallback() throws Exception {
+        JsonNode body = objectMapper.readTree("""
+                {
+                  "data": {
+                    "name": "Url Wins",
+                    "url": "https://cdn.example.com/url-wins.m4a?token=abc"
+                  }
+                }
+                """);
+        MusicService service = new MusicService(new StubGatewayClient(objectMapper, body));
+
+        DownloadInfo info = service.downloadInfo("netease", "42", "MP3_320");
+
+        assertThat(info.format()).isEqualTo("M4A");
+        assertThat(info.extension()).isEqualTo("m4a");
+        assertThat(info.mimeType()).isEqualTo("audio/mp4");
+        assertThat(info.filename()).isEqualTo("Url Wins-MP3_320.m4a");
+    }
+
+    @Test
+    void unknownFormatFallsBackToMp3Metadata() throws Exception {
+        JsonNode body = objectMapper.readTree("""
+                {
+                  "data": {
+                    "name": "Fallback",
+                    "format": "unknown",
+                    "url": "https://cdn.example.com/file"
+                  }
+                }
+                """);
+        MusicService service = new MusicService(new StubGatewayClient(objectMapper, body));
+
+        DownloadInfo info = service.downloadInfo("netease", "42", "MASTER");
+
+        assertThat(info.format()).isEqualTo("MP3");
+        assertThat(info.extension()).isEqualTo("mp3");
+        assertThat(info.mimeType()).isEqualTo("audio/mpeg");
+        assertThat(info.filename()).isEqualTo("Fallback-MASTER.mp3");
     }
 
     private static final class StubGatewayClient extends GatewayClient {

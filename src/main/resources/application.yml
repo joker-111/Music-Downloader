@@ -5,25 +5,25 @@ spring:
   application:
     name: music-downloader
 
-# Gateway 模块配置：Java 代码只认 operation，具体 REST 路径在这里维护。
+# Gateway 模块配置：真实远端地址、路径和密钥只从环境变量或本机 .env 读取。
 music:
   gateway:
-    base-url: https://gateway.karpov.cn/api/proxy
+    base-url: ${MUSIC_GATEWAY_BASE_URL:}
     timeout: 15s
     user-agent: Mozilla/5.0 MusicDownloader/1.0
     api-key: ${MUSIC_GATEWAY_API_KEY:}
     candidates:
       search:
-        - "/{platform}/search/songs?q={keyword}&page={page}&page_size={limit}"
+        - "${MUSIC_GATEWAY_SEARCH_PATH:}"
       song:
-        - "/{platform}/songs/{id}"
+        - "${MUSIC_GATEWAY_SONG_PATH:}"
       download:
-        - "/{platform}/songs/{id}/url?quality={quality}"
+        - "${MUSIC_GATEWAY_DOWNLOAD_PATH:}"
       lyric:
-        - "/{platform}/songs/{id}/lyric"
+        - "${MUSIC_GATEWAY_LYRIC_PATH:}"
       artist:
-        - "/{platform}/artists/{id}"
+        - "${MUSIC_GATEWAY_ARTIST_PATH:}"
       playlist:
-        - "/{platform}/playlists/{id}"
+        - "${MUSIC_GATEWAY_PLAYLIST_PATH:}"
       album:
-        - "/{platform}/albums/{id}"
+        - "${MUSIC_GATEWAY_ALBUM_PATH:}"

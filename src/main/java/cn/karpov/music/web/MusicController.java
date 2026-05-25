@@ -15,6 +15,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.ContentDisposition;
@@ -90,9 +91,10 @@ public class MusicController {
     public ApiResponse<DownloadInfo> downloadInfo(
             @PathVariable String platform,
             @PathVariable String id,
-            @RequestParam(defaultValue = "MP3_320") String quality
+            @RequestParam(defaultValue = "MP3_320") String quality,
+            @RequestParam(required = false) String title
     ) {
-        return ApiResponse.ok(musicService.downloadInfo(platform, id, quality));
+        return ApiResponse.ok(musicService.downloadInfo(platform, id, quality, title));
     }
 
     /**
@@ -102,9 +104,10 @@ public class MusicController {
     public ResponseEntity<byte[]> download(
             @PathVariable String platform,
             @PathVariable String id,
-            @RequestParam(defaultValue = "MP3_320") String quality
+            @RequestParam(defaultValue = "MP3_320") String quality,
+            @RequestParam(required = false) String title
     ) throws IOException, InterruptedException {
-        DownloadInfo info = musicService.downloadInfo(platform, id, quality);
+        DownloadInfo info = musicService.downloadInfo(platform, id, quality, title);
         if (info.url() == null || info.url().isBlank()) {
             return ResponseEntity.notFound().build();
         }
@@ -118,11 +121,22 @@ public class MusicController {
         }
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
-                        .filename(info.filename())
+                        .filename(info.filename(), StandardCharsets.UTF_8)
                         .build()
                         .toString())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(downloadMediaType(info.mimeType()))
                 .body(response.body());
+    }
+
+    private MediaType downloadMediaType(String mimeType) {
+        if (mimeType == null || mimeType.isBlank()) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
+        try {
+            return MediaType.parseMediaType(mimeType);
+        } catch (IllegalArgumentException ex) {
+            return MediaType.APPLICATION_OCTET_STREAM;
+        }
     }
 
     /**

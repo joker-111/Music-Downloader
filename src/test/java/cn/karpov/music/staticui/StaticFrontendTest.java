@@ -44,6 +44,13 @@ class StaticFrontendTest {
     }
 
     @Test
+    void appRendersDownloadFileFormat() throws IOException {
+        String script = Files.readString(FRONTEND_DIR.resolve("src/main.js"), StandardCharsets.UTF_8);
+
+        assertThat(script).contains("fileFormat", "data.format || qualityLabel(data.quality)");
+    }
+
+    @Test
     void stylesUseNativeCursorForDownloaderControls() throws IOException {
         String styles = Files.readString(FRONTEND_DIR.resolve("src/styles.css"), StandardCharsets.UTF_8);
 

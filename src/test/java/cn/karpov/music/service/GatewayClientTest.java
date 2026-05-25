@@ -81,4 +81,40 @@ class GatewayClientTest {
                 });
         server.verify();
     }
+
+    @Test
+    void fetchThrowsGatewayExceptionWhenBaseUrlIsMissing() {
+        GatewayProperties properties = new GatewayProperties();
+        properties.setCandidates(Map.of("search", List.of("/{platform}/search?q={keyword}")));
+        GatewayClient client = new GatewayClient(properties, RestClient.builder().build(), objectMapper);
+
+        assertThatThrownBy(() -> client.fetch("search", Map.of("platform", "netease", "keyword", "晴天")))
+                .isInstanceOf(GatewayException.class)
+                .satisfies(error -> {
+                    GatewayException exception = (GatewayException) error;
+                    assertThat(exception.getAttempts()).singleElement()
+                            .satisfies(attempt -> {
+                                assertThat(attempt.url()).isEqualTo("music.gateway.base-url");
+                                assertThat(attempt.message()).contains("MUSIC_GATEWAY_BASE_URL");
+                            });
+                });
+    }
+
+    @Test
+    void fetchThrowsGatewayExceptionWhenOperationPathIsMissing() {
+        GatewayProperties properties = new GatewayProperties();
+        properties.setBaseUrl("https://gateway.test/api");
+        GatewayClient client = new GatewayClient(properties, RestClient.builder().build(), objectMapper);
+
+        assertThatThrownBy(() -> client.fetch("search", Map.of("platform", "netease", "keyword", "晴天")))
+                .isInstanceOf(GatewayException.class)
+                .satisfies(error -> {
+                    GatewayException exception = (GatewayException) error;
+                    assertThat(exception.getAttempts()).singleElement()
+                            .satisfies(attempt -> {
+                                assertThat(attempt.url()).isEqualTo("music.gateway.candidates.search");
+                                assertThat(attempt.message()).contains("search");
+                            });
+                });
+    }
 }

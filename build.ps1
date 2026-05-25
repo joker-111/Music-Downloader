@@ -30,9 +30,11 @@ if ($env:JAVA_HOME) {
     $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 }
 
+$MavenCommand = "mvn"
 if ($env:MAVEN_HOME) {
     $env:Path = "$env:MAVEN_HOME\bin;$env:Path"
+    $MavenCommand = Join-Path $env:MAVEN_HOME "bin\mvn.cmd"
 }
 
-mvn clean package
+& $MavenCommand clean package
 exit $LASTEXITCODE

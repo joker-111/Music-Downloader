@@ -58,7 +58,19 @@ function Test-MavenHome {
 Import-LocalEnvFile $LocalEnvFile
 Use-UserEnvironmentVariable "JAVA_HOME"
 Use-UserEnvironmentVariable "MAVEN_HOME"
-Use-UserEnvironmentVariable "MUSIC_GATEWAY_API_KEY"
+@(
+    "MUSIC_GATEWAY_BASE_URL",
+    "MUSIC_GATEWAY_SEARCH_PATH",
+    "MUSIC_GATEWAY_SONG_PATH",
+    "MUSIC_GATEWAY_DOWNLOAD_PATH",
+    "MUSIC_GATEWAY_LYRIC_PATH",
+    "MUSIC_GATEWAY_ARTIST_PATH",
+    "MUSIC_GATEWAY_PLAYLIST_PATH",
+    "MUSIC_GATEWAY_ALBUM_PATH",
+    "MUSIC_GATEWAY_API_KEY"
+) | ForEach-Object {
+    Use-UserEnvironmentVariable $_
+}
 
 if (-not (Test-JavaHome $env:JAVA_HOME) -and (Test-Path $LocalJava)) {
     $env:JAVA_HOME = $LocalJava
@@ -74,6 +86,11 @@ if ($env:JAVA_HOME) {
 
 if ($env:MAVEN_HOME) {
     $env:Path = "$env:MAVEN_HOME\bin;$env:Path"
+}
+
+$MavenCommand = "mvn"
+if ($env:MAVEN_HOME) {
+    $MavenCommand = Join-Path $env:MAVEN_HOME "bin\mvn.cmd"
 }
 
 $AppJar = Join-Path $PSScriptRoot "target\music-downloader-0.0.1-SNAPSHOT.jar"
@@ -105,31 +122,23 @@ function Find-FreePort {
             return $Port
         }
     }
-    return $StartPort
-}
-
-try {
-    Get-NetTCPConnection -LocalPort 8080 -State Listen -ErrorAction SilentlyContinue |
-        Select-Object -ExpandProperty OwningProcess -Unique |
-        Where-Object { $_ -and $_ -ne $PID } |
-        ForEach-Object {
-            Write-Host "Stopping existing process $($_) on port 8080..."
-            Stop-Process -Id $_ -Force
-        }
-} catch {
-    Write-Warning "Could not check port 8080 before startup: $($_.Exception.Message)"
+    return $null
 }
 
 if (Test-LocalPortOpen 8080) {
     $ServerPort = Find-FreePort 8081
-    Write-Warning "Port 8080 is still in use. Starting on http://localhost:$ServerPort instead."
+    if (-not $ServerPort) {
+        Write-Error "Ports 8080-8091 are already in use. Stop one of those services or set a free port before starting."
+        exit 1
+    }
+    Write-Warning "Port 8080 is already in use. Keeping the existing process running and starting on http://localhost:$ServerPort instead."
 }
 
 if (-not $env:MUSIC_GATEWAY_API_KEY) {
     Write-Warning "MUSIC_GATEWAY_API_KEY is not configured. Gateway requests may return the login page."
 }
 
-mvn clean package -DskipTests
+& $MavenCommand clean package -DskipTests
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

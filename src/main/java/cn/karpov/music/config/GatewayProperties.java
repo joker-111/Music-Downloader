@@ -17,7 +17,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "music.gateway")
 public class GatewayProperties {
-    private String baseUrl = "https://gateway.karpov.cn";
+    private String baseUrl = "";
     private Duration timeout = Duration.ofSeconds(15);
     private String userAgent = "Mozilla/5.0 MusicDownloader/1.0";
     private String apiKey;
@@ -67,6 +67,8 @@ public class GatewayProperties {
      * 返回指定操作的候选路径；没有配置时返回空列表，让调用方统一处理失败。
      */
     public List<String> candidatesFor(String operation) {
-        return candidates.getOrDefault(operation, new ArrayList<>());
+        return candidates.getOrDefault(operation, new ArrayList<>()).stream()
+                .filter(candidate -> candidate != null && !candidate.isBlank())
+                .toList();
     }
 }

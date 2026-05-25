@@ -71,31 +71,27 @@ npm run build
 
 ## 网关说明
 
-配置 `src/main/resources/application.yml` 中的网关地址和候选路径。
-
-当前默认通过 Karpov Console 的同源代理入口访问上游音乐 API：
-
-- `music.gateway.base-url`: `https://gateway.karpov.cn/api/proxy`
-
-代理入口会把下面这些路径转发到 Karpov Gateway 上游 `music.proto` 中定义的 REST 路由：
-
-- `/v1/{provider}/search/songs`
-- `/v1/{provider}/songs/{id}`
-- `/v1/{provider}/songs/{id}/url`
-- `/v1/{provider}/songs/{id}/lyric`
-- `/v1/{provider}/albums/{id}`
-- `/v1/{provider}/artists/{id}`
-- `/v1/{provider}/playlists/{id}`
-
-注意：`https://gateway.karpov.cn` 当前直接访问 `/v1/**` 返回的是 Karpov Console HTML 页面，不是公开音乐 API JSON；本项目因此默认使用 `/api/proxy/**`。
-
-如果网关需要 API Key，请在本机环境变量或项目根目录 `.env` 中配置，不要写入 Git：
+远端网关地址、接口路径和 API Key 不写入代码。复制模板到本机 `.env` 后填写真实值：
 
 ```powershell
-setx MUSIC_GATEWAY_API_KEY "你的 API Key"
+Copy-Item .env.example .env
 ```
 
-重新打开终端后再运行 `.\run.cmd`。如果搜索返回 `50200` 且提示 `all credentials exhausted` / `no candidate credential available`，说明请求已经到达远端网关，但 Karpov Gateway 的音乐平台凭据池没有可用的 QQ 音乐或网易云音乐账号凭据，需要在 Karpov Console 后台补充或刷新平台凭据。
+需要配置的变量：
+
+- `MUSIC_GATEWAY_BASE_URL`
+- `MUSIC_GATEWAY_SEARCH_PATH`
+- `MUSIC_GATEWAY_SONG_PATH`
+- `MUSIC_GATEWAY_DOWNLOAD_PATH`
+- `MUSIC_GATEWAY_LYRIC_PATH`
+- `MUSIC_GATEWAY_ARTIST_PATH`
+- `MUSIC_GATEWAY_PLAYLIST_PATH`
+- `MUSIC_GATEWAY_ALBUM_PATH`
+- `MUSIC_GATEWAY_API_KEY`
+
+`.env` 已被 `.gitignore` 忽略，不会上传远端。后续换 API，只改 `.env` 或系统环境变量，不需要改 `application.yml` 或 Java 代码。
+
+`.\run.cmd` 会自动读取项目根目录的 `.env`。如果没有配置 `MUSIC_GATEWAY_BASE_URL` 或对应接口路径，接口会返回明确的缺失配置提示。
 
 ## 本地 API
 
