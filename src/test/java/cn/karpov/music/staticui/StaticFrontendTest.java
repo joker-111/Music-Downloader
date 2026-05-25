@@ -25,6 +25,8 @@ class StaticFrontendTest {
         assertThat(html).contains("id=\"detailView\"");
         assertThat(html).contains("id=\"downloadInfoBtn\"");
         assertThat(html).contains("id=\"downloadBtn\"");
+        assertThat(html).contains("下载音频+歌词");
+        assertThat(html).doesNotContain("id=\"lyricFileBtn\"");
         assertThat(html).doesNotContain("UNSEEN", "Selected Projects", "Enter without audio");
     }
 
@@ -36,11 +38,12 @@ class StaticFrontendTest {
                 "/api/search?platform=",
                 "/api/song/${encodeURIComponent(platform)}/${id}",
                 "/api/song/${encodeURIComponent(platform)}/${id}/lyric",
-                "/api/song/${encodeURIComponent(platform)}/${id}/download-info?quality=",
-                "/api/song/${encodeURIComponent(platform)}/${id}/download?quality="
+                "/api/song/${encodeURIComponent(platform)}/${id}/download-info?",
+                "/api/song/${encodeURIComponent(platform)}/${id}/download-package?"
         );
 
         assertThat(script).contains(routes);
+        assertThat(script).contains("downloadQuery", "\"artist\"", "\"album\"");
     }
 
     @Test

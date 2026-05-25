@@ -294,17 +294,16 @@ async function loadDownloadInfo() {
   const platform = state.selected.platform || $("platform").value;
   const id = encodeURIComponent(state.selected.id);
   const quality = $("quality").value;
-  const title = state.selected.title || "";
-  const titleQuery = title ? `&title=${encodeURIComponent(title)}` : "";
+  const query = downloadQuery(quality, state.selected);
   resetDownload();
   setStatus(`正在获取 ${qualityLabel(quality)} 下载链接...`);
   setRaw(text.downloadFetching);
   try {
-    const info = await api(`/api/song/${encodeURIComponent(platform)}/${id}/download-info?quality=${encodeURIComponent(quality)}${titleQuery}`);
+    const info = await api(`/api/song/${encodeURIComponent(platform)}/${id}/download-info?${query}`);
     renderDetail("download", info);
     renderRaw(info);
     if (info.url) {
-      $("downloadBtn").href = `/api/song/${encodeURIComponent(platform)}/${id}/download?quality=${encodeURIComponent(quality)}${titleQuery}`;
+      $("downloadBtn").href = `/api/song/${encodeURIComponent(platform)}/${id}/download-package?${query}`;
       $("downloadBtn").classList.remove("disabled");
       $("downloadBtn").hidden = false;
       setStatus(text.downloadReady);
@@ -425,6 +424,20 @@ function resetDownload() {
   $("downloadBtn").classList.add("disabled");
   $("downloadBtn").href = "#";
   $("downloadBtn").hidden = true;
+}
+
+function downloadQuery(quality, track) {
+  const params = new URLSearchParams({ quality });
+  addParam(params, "title", track?.title);
+  addParam(params, "artist", track?.artist);
+  addParam(params, "album", track?.album);
+  return params.toString();
+}
+
+function addParam(params, key, value) {
+  if (value !== undefined && value !== null && value !== "") {
+    params.set(key, value);
+  }
 }
 
 function idForTab(tab) {
