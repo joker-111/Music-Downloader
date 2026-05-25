@@ -9,3 +9,4 @@ target/
 *.jar
 *.war
 .tmp-karpov-gateway/
+.env

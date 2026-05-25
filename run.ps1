@@ -1,5 +1,28 @@
 $LocalJava = Join-Path $PSScriptRoot ".tools\jdk-17.0.19+10"
 $LocalMaven = Join-Path $PSScriptRoot ".tools\apache-maven-3.9.16"
+$LocalEnvFile = Join-Path $PSScriptRoot ".env"
+
+function Import-LocalEnvFile {
+    param([string]$Path)
+
+    if (-not (Test-Path $Path)) {
+        return
+    }
+
+    Get-Content -Path $Path | ForEach-Object {
+        $Line = $_.Trim()
+        if (-not $Line -or $Line.StartsWith("#") -or -not $Line.Contains("=")) {
+            return
+        }
+
+        $Parts = $Line.Split("=", 2)
+        $Name = $Parts[0].Trim()
+        $Value = $Parts[1].Trim().Trim('"').Trim("'")
+        if ($Name) {
+            [Environment]::SetEnvironmentVariable($Name, $Value, "Process")
+        }
+    }
+}
 
 function Use-UserEnvironmentVariable {
     param([string]$Name)
@@ -15,6 +38,7 @@ function Use-UserEnvironmentVariable {
     }
 }
 
+Import-LocalEnvFile $LocalEnvFile
 Use-UserEnvironmentVariable "JAVA_HOME"
 Use-UserEnvironmentVariable "MAVEN_HOME"
 Use-UserEnvironmentVariable "MUSIC_GATEWAY_API_KEY"

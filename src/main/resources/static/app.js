@@ -38,6 +38,11 @@ const text = {
   chooseTrack: "\u8bf7\u9009\u62e9\u4e00\u9996\u6b4c\u66f2",
   detailEmpty: "\u9009\u62e9\u641c\u7d22\u7ed3\u679c\u540e\u81ea\u52a8\u5c55\u793a\u3002",
   rawEmpty: "\u9009\u62e9\u641c\u7d22\u7ed3\u679c\u540e\u81ea\u52a8\u52a0\u8f7d\u3002",
+  searchReadyDetail: "\u641c\u7d22\u7ed3\u679c\u5df2\u5728\u5de6\u4fa7\u52a0\u8f7d\uff0c\u9009\u62e9\u4e00\u9996\u6b4c\u66f2\u67e5\u770b\u8be6\u60c5\u3002",
+  rawSearchSummary: "\u641c\u7d22\u54cd\u5e94\u5df2\u6536\u8d77",
+  rawDetailSummary: "\u5f53\u524d\u8be6\u60c5\u54cd\u5e94",
+  rawErrorSummary: "\u8bf7\u6c42\u5931\u8d25\u54cd\u5e94",
+  rawEmptySummary: "\u6682\u65e0\u8c03\u8bd5\u54cd\u5e94",
   ready: "\u5c31\u7eea\u3002"
 };
 
@@ -76,11 +81,24 @@ function setStatus(message, tone = "normal") {
 function setRaw(value, isError = false) {
   $("content").classList.toggle("raw-error", isError);
   $("content").textContent = typeof value === "string" ? value : pretty(value);
+  $("rawDisclosure").open = isError;
+}
+
+function setRawSummary(message) {
+  $("rawSummary").textContent = message;
+}
+
+function setRawCollapsed(value, summary) {
+  $("rawDisclosure").open = false;
+  $("content").classList.remove("raw-error");
+  $("content").textContent = typeof value === "string" ? value : pretty(value);
+  setRawSummary(summary);
 }
 
 function showError(error) {
   setStatus(error.message, "error");
   setRaw(error.payload || error.message, true);
+  setRawSummary(text.rawErrorSummary);
 }
 
 function escapeHtml(value) {
@@ -142,9 +160,11 @@ async function search(event) {
   try {
     const result = await api(`/api/search?platform=${encodeURIComponent(platform)}&keyword=${encodeURIComponent(keyword)}&limit=30`);
     state.lastResult = result;
-    renderResults(result.tracks || []);
-    setStatus(`\u5df2\u52a0\u8f7d ${(result.tracks || []).length} \u6761\u641c\u7d22\u7ed3\u679c\u3002`);
-    renderRaw(result);
+    const tracks = result.tracks || [];
+    renderResults(tracks);
+    setStatus(`\u5df2\u52a0\u8f7d ${tracks.length} \u6761\u641c\u7d22\u7ed3\u679c\u3002`);
+    $("detailView").textContent = tracks.length ? text.searchReadyDetail : text.detailEmpty;
+    setRawCollapsed(result, `${text.rawSearchSummary}\uff1a${tracks.length} \u6761\u7ed3\u679c`);
   } catch (error) {
     $("resultList").className = "result-list empty";
     $("resultList").textContent = error.message;
@@ -294,6 +314,7 @@ function renderDetail(tab, data) {
 
 function renderRaw(value) {
   setRaw(value?.raw || value);
+  setRawSummary(text.rawDetailSummary);
 }
 
 function detailMarkup(rows) {
@@ -348,7 +369,7 @@ function resetSelection() {
   $("downloadInfoBtn").disabled = true;
   resetDownload();
   $("detailView").textContent = text.detailEmpty;
-  setRaw(text.rawEmpty);
+  setRawCollapsed(text.rawEmpty, text.rawEmptySummary);
 }
 
 function updateCoverVisibility() {
